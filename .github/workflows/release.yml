@@ -1,0 +1,188 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g. v0.0.1)'
+        required: true
+        default: 'v0.0.1'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build - ${{ matrix.platform.name }} (${{ matrix.platform.target }})
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          # Linux x86_64
+          - name: Linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            binary_name: ap-dl
+            archive_ext: tar.gz
+            asset_suffix: linux-x86_64
+
+          # Windows x86_64
+          - name: Windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary_name: ap-dl.exe
+            archive_ext: zip
+            asset_suffix: windows-x86_64
+
+          # macOS Apple Silicon (ARM64)
+          - name: macOS ARM64
+            os: macos-latest
+            target: aarch64-apple-darwin
+            binary_name: ap-dl
+            archive_ext: zip
+            asset_suffix: macos-arm64
+
+          # macOS Intel (x86_64)
+          - name: macOS Intel
+            os: macos-13
+            target: x86_64-apple-darwin
+            binary_name: ap-dl
+            archive_ext: zip
+            asset_suffix: macos-x86_64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract Tag Version
+        id: get_version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+
+      - name: Install Linux GUI Dependencies
+        if: matrix.platform.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libfontconfig1-dev \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libssl-dev \
+            libudev-dev
+
+      - name: Build Binary
+        run: cargo build --release --target ${{ matrix.platform.target }}
+
+      - name: Package Release Assets (macOS)
+        if: startsWith(matrix.platform.os, 'macos')
+        shell: bash
+        run: |
+          ARCHIVE_NAME="ap-dl-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform.asset_suffix }}.zip"
+          APP_DIR="dist/APDL.app"
+          mkdir -p "${APP_DIR}/Contents/MacOS"
+          mkdir -p "${APP_DIR}/Contents/Resources"
+          cp target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }} "${APP_DIR}/Contents/MacOS/APDL"
+          cp assets/icon.icns "${APP_DIR}/Contents/Resources/AppIcon.icns" 2>/dev/null || true
+          cp assets/icon.png "${APP_DIR}/Contents/Resources/icon.png" 2>/dev/null || true
+          
+          cat << 'EOF' > "${APP_DIR}/Contents/Info.plist"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>CFBundleExecutable</key><string>APDL</string>
+            <key>CFBundleIconFile</key><string>AppIcon</string>
+            <key>CFBundleIdentifier</key><string>com.apdl.app</string>
+            <key>CFBundleName</key><string>APDL</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleShortVersionString</key><string>${{ steps.get_version.outputs.VERSION }}</string>
+            <key>LSMinimumSystemVersion</key><string>10.13</string>
+            <key>NSHighResolutionCapable</key><true/>
+          </dict></plist>
+          EOF
+
+          cd dist && zip -r "../${ARCHIVE_NAME}" APDL.app && cd ..
+          echo "ASSET_PATH=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+      - name: Package Release Assets (Linux)
+        if: matrix.platform.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          ARCHIVE_NAME="ap-dl-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform.asset_suffix }}.tar.gz"
+          mkdir -p dist
+          cp target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }} dist/
+          cp README.md dist/ 2>/dev/null || true
+          cp -r assets dist/ 2>/dev/null || true
+          tar -czvf "${ARCHIVE_NAME}" -C dist .
+          echo "ASSET_PATH=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+      - name: Package Release Assets (Windows)
+        if: matrix.platform.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $ArchiveName = "ap-dl-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform.asset_suffix }}.zip"
+          New-Item -ItemType Directory -Force -Path dist
+          Copy-Item "target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }}" -Destination dist/
+          if (Test-Path "README.md") { Copy-Item "README.md" -Destination dist/ }
+          if (Test-Path "assets") { Copy-Item "assets" -Recurse -Destination dist/ }
+          Compress-Archive -Path dist/* -DestinationPath $ArchiveName
+          echo "ASSET_PATH=$ArchiveName" >> $env:GITHUB_ENV
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.asset_suffix }}
+          path: ${{ env.ASSET_PATH }}
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract Version
+        id: get_version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Download all built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_assets
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: "APDL ${{ steps.get_version.outputs.VERSION }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: release_assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
