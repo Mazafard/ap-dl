@@ -90,35 +90,85 @@ jobs:
       - name: Build Binary
         run: cargo build --release --target ${{ matrix.platform.target }}
 
+      - name: Setup macOS Signing Certificate
+        if: startsWith(matrix.platform.os, 'macos') && env.MACOS_CERTIFICATE_BASE64 != ''
+        env:
+          MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 24)
+          
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Import certificate into keychain
+          echo "$MACOS_CERTIFICATE_BASE64" | base64 --decode > $RUNNER_TEMP/certificate.p12
+          security import $RUNNER_TEMP/certificate.p12 -k "$KEYCHAIN_PATH" -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Add to search list
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+
       - name: Package Release Assets (macOS)
         if: startsWith(matrix.platform.os, 'macos')
         shell: bash
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          ARCHIVE_NAME="ap-dl-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform.asset_suffix }}.zip"
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          ARCHIVE_NAME="ap-dl-${VERSION}-${{ matrix.platform.asset_suffix }}.zip"
+          DMG_NAME="ap-dl-${VERSION}-${{ matrix.platform.asset_suffix }}.dmg"
           APP_DIR="dist/APDL.app"
+          
           mkdir -p "${APP_DIR}/Contents/MacOS"
           mkdir -p "${APP_DIR}/Contents/Resources"
-          cp target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }} "${APP_DIR}/Contents/MacOS/APDL"
-          cp assets/icon.icns "${APP_DIR}/Contents/Resources/AppIcon.icns" 2>/dev/null || true
-          cp assets/icon.png "${APP_DIR}/Contents/Resources/icon.png" 2>/dev/null || true
+          cp target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }} "${APP_DIR}/Contents/MacOS/ap-dl"
+          chmod +x "${APP_DIR}/Contents/MacOS/ap-dl"
           
-          cat << 'EOF' > "${APP_DIR}/Contents/Info.plist"
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0"><dict>
-            <key>CFBundleExecutable</key><string>APDL</string>
-            <key>CFBundleIconFile</key><string>AppIcon</string>
-            <key>CFBundleIdentifier</key><string>com.apdl.app</string>
-            <key>CFBundleName</key><string>APDL</string>
-            <key>CFBundlePackageType</key><string>APPL</string>
-            <key>CFBundleShortVersionString</key><string>${{ steps.get_version.outputs.VERSION }}</string>
-            <key>LSMinimumSystemVersion</key><string>10.13</string>
-            <key>NSHighResolutionCapable</key><true/>
-          </dict></plist>
-          EOF
+          cp assets/AppIcon.icns "${APP_DIR}/Contents/Resources/AppIcon.icns" 2>/dev/null || cp assets/icon.icns "${APP_DIR}/Contents/Resources/AppIcon.icns" 2>/dev/null || true
+          cp assets/Info.plist "${APP_DIR}/Contents/Info.plist"
+          
+          AUTO_IDENTITY="$(security find-identity -p codesigning -v 2>/dev/null | grep "Developer ID Application" | head -n 1 | awk -F'"' '{print $2}' || true)"
+          
+          if [[ -n "$AUTO_IDENTITY" ]]; then
+            echo "Codesigning with identity: $AUTO_IDENTITY"
+            codesign --force --deep --options runtime --entitlements assets/entitlements.plist --sign "$AUTO_IDENTITY" "${APP_DIR}"
+          else
+            echo "Applying ad-hoc signature..."
+            codesign --force --deep --sign - "${APP_DIR}" 2>/dev/null || true
+          fi
+          
+          # Create DMG
+          mkdir -p dist/dmg_staging
+          cp -R "${APP_DIR}" dist/dmg_staging/APDL.app
+          ln -s /Applications dist/dmg_staging/Applications
+          hdiutil create -volname "APDL" -srcfolder dist/dmg_staging -ov -format UDZO "${DMG_NAME}"
+          rm -rf dist/dmg_staging
 
+          if [[ -n "$AUTO_IDENTITY" ]]; then
+            echo "Signing DMG with identity: $AUTO_IDENTITY"
+            codesign --force --sign "$AUTO_IDENTITY" "${DMG_NAME}"
+            
+            if [[ -n "$APPLE_ID" && -n "$APPLE_PASSWORD" && -n "$APPLE_TEAM_ID" ]]; then
+              echo "Submitting DMG to Apple Notary Service..."
+              xcrun notarytool submit "${DMG_NAME}" --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+              echo "Stapling notarization ticket..."
+              xcrun stapler staple "${DMG_NAME}"
+            fi
+          fi
+
+          # Create ZIP
           cd dist && zip -r "../${ARCHIVE_NAME}" APDL.app && cd ..
-          echo "ASSET_PATH=${ARCHIVE_NAME}" >> $GITHUB_ENV
+          
+          mkdir -p release_binaries
+          cp "${DMG_NAME}" release_binaries/
+          cp "${ARCHIVE_NAME}" release_binaries/
+          echo "ASSET_PATH=release_binaries/*" >> $GITHUB_ENV
 
       - name: Package Release Assets (Linux)
         if: matrix.platform.os == 'ubuntu-latest'
