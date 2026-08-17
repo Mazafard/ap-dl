@@ -1,0 +1,168 @@
+import { Theme } from "../theme.slint";
+
+component MinimalPasteIcon inherits Rectangle {
+    width: 14px;
+    height: 15px;
+
+    // Clipboard board base
+    Rectangle {
+        width: 12px;
+        height: 13px;
+        x: 1px;
+        y: 2px;
+        border-radius: 2px;
+        border-width: 1.2px;
+        border-color: #ffffffd0;
+    }
+
+    // Top clip tab
+    Rectangle {
+        width: 6px;
+        height: 3px;
+        x: 4px;
+        y: 0px;
+        border-radius: 1px;
+        background: #ffffffff;
+    }
+
+    // Inner detail lines
+    Rectangle {
+        width: 6px;
+        height: 1.2px;
+        x: 4px;
+        y: 6.5px;
+        border-radius: 0.5px;
+        background: #ffffffb0;
+    }
+
+    Rectangle {
+        width: 4px;
+        height: 1.2px;
+        x: 4px;
+        y: 9.5px;
+        border-radius: 0.5px;
+        background: #ffffff80;
+    }
+}
+
+export component DarkGlassTextInput inherits Rectangle {
+    in-out property <string> text <=> input.text;
+    in-out property <string> placeholder: "";
+    in-out property <bool> enabled: true;
+    callback accepted();
+    callback paste_clicked();
+
+    private property <bool> is_expanded: root.text != "" && root.text.character-count > 46;
+
+    horizontal-stretch: 1;
+    min-width: 200px;
+    height: is_expanded ? 76px : 42px;
+    background: input.has-focus ? #ffffff14 : #ffffff08;
+    border-radius: Theme.radius_md;
+    border-width: 1px;
+    border-color: input.has-focus ? #f43f5ecc : #ffffff1c;
+
+    animate border-color, background, height { duration: 160ms; }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 8px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        spacing: 8px;
+        alignment: stretch;
+
+        // Editable Input Area with Custom Thin Scroll Thumb
+        Rectangle {
+            horizontal-stretch: 1;
+            clip: true;
+
+            flick := Flickable {
+                width: 100%;
+                height: 100%;
+
+                if input.text == "" : Text {
+                    text: root.placeholder;
+                    color: Theme.text_subtle;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    x: 0;
+                    y: (parent.height - self.height) / 2;
+                }
+
+                input := TextInput {
+                    width: flick.width - 4px;
+                    color: Theme.text_primary;
+                    selection-background-color: #f43f5e88;
+                    selection-foreground-color: #ffffff;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    wrap: root.is_expanded ? char-wrap : no-wrap;
+                    single-line: !root.is_expanded;
+                    enabled: root.enabled;
+                    accepted => { root.accepted(); }
+                }
+            }
+
+            // Custom Scrollbar Thumb for Text Field
+            if flick.viewport_height > flick.height : Rectangle {
+                width: 3px;
+                height: Math.max(14px, (flick.height / flick.viewport_height) * flick.height);
+                x: parent.width - self.width;
+                y: (-flick.viewport_y / (flick.viewport_height - flick.height)) * (flick.height - self.height);
+                border-radius: 1.5px;
+                background: #ffffff33;
+            }
+        }
+
+        // Trailing Inline Minimal White Icon "Paste" Action (when empty)
+        if input.text == "" : Rectangle {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: paste_touch.has-hover ? #ffffff24 : #ffffff12;
+            border-width: 1px;
+            border-color: paste_touch.has-hover ? #ffffff34 : #ffffff18;
+            y: (parent.height - self.height) / 2;
+
+            animate background, border-color { duration: 120ms; }
+
+            paste_touch := TouchArea {
+                enabled: root.enabled;
+                clicked => { root.paste_clicked(); }
+            }
+
+            MinimalPasteIcon {
+                x: (parent.width - self.width) / 2;
+                y: (parent.height - self.height) / 2;
+            }
+        }
+
+        // Trailing "Clear [×]" Action (when text present)
+        if input.text != "" : Rectangle {
+            width: 20px;
+            height: 20px;
+            y: (parent.height - self.height) / 2;
+            border-radius: 10px;
+            background: clear_touch.has-hover ? #ffffff30 : #ffffff1c;
+
+            animate background { duration: 120ms; }
+
+            clear_touch := TouchArea {
+                enabled: root.enabled;
+                clicked => {
+                    input.text = "";
+                }
+            }
+
+            Text {
+                text: "×";
+                font-size: 13px;
+                font-weight: 700;
+                color: Theme.text_primary;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+}
