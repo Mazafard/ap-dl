@@ -1,0 +1,91 @@
+import { Theme } from "theme.slint";
+import { MediaItem } from "models.slint";
+import { SidebarView } from "views/sidebar.slint";
+import { QueueView } from "views/queue_view.slint";
+import { UrlModalDialog } from "views/url_modal.slint";
+
+export { MediaItem }
+
+export component AppWindow inherits Window {
+    title: "APDL — Aparat Downloader";
+    icon: @image-url("../assets/icon.png");
+    min-width: 960px;
+    min-height: 620px;
+    preferred-width: 1040px;
+    preferred-height: 680px;
+    background: #00000000; // Pass-through for OS native vibrancy blur
+    default-font-family: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
+
+    // Application State Properties
+    in-out property <string> destination_path: "~/Downloads";
+    in-out property <string> collection_title: "No media loaded";
+    in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
+    in-out property <string> total_speed: "Ready";
+    in-out property <bool> is_downloading: false;
+    in-out property <[MediaItem]> media_items: [];
+
+    // Modal State & Properties
+    in-out property <bool> show_url_modal: false;
+    in-out property <string> modal_url_input: "";
+    in-out property <string> validation_message: "";
+    in-out property <bool> is_analyzing: false;
+
+    // Callbacks to Rust Backend
+    callback paste_from_clipboard();
+    callback submit_url(string);
+    callback browse_path();
+    callback toggle_select_all(bool);
+    callback toggle_item(int);
+    callback start_download();
+    callback cancel_download();
+
+    // Main Visual Shell
+    Rectangle {
+        background: Theme.shell_bg;
+        border-radius: Theme.radius_xl;
+        border-width: 1px;
+        border-color: Theme.shell_border;
+
+        HorizontalLayout {
+            padding: 16px;
+            spacing: 16px;
+
+            // 1. Sidebar Feature View
+            SidebarView {
+                collection_title: root.collection_title;
+                collection_details: root.collection_details;
+                destination_path: root.destination_path;
+                open_add_modal => {
+                    root.validation_message = "";
+                    root.show_url_modal = true;
+                }
+                browse_path => { root.browse_path(); }
+            }
+
+            // 2. Queue Stream Feature View
+            QueueView {
+                media_items: root.media_items;
+                total_speed: root.total_speed;
+                is_downloading: root.is_downloading;
+                open_add_modal => {
+                    root.validation_message = "";
+                    root.show_url_modal = true;
+                }
+                toggle_select_all(state) => { root.toggle_select_all(state); }
+                toggle_item(idx) => { root.toggle_item(idx); }
+                start_download => { root.start_download(); }
+                cancel_download => { root.cancel_download(); }
+            }
+        }
+    }
+
+    // 3. Modal Overlay Dialog
+    if root.show_url_modal: UrlModalDialog {
+        modal_url_input <=> root.modal_url_input;
+        validation_message <=> root.validation_message;
+        is_analyzing: root.is_analyzing;
+        close_modal => { root.show_url_modal = false; }
+        paste_from_clipboard => { root.paste_from_clipboard(); }
+        submit_url(url) => { root.submit_url(url); }
+    }
+}
