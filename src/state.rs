@@ -3,7 +3,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct InternalTask {
     pub id: String,
     pub video_hash: String,
