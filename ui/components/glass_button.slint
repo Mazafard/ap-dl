@@ -1,0 +1,43 @@
+import { Theme } from "../theme.slint";
+
+export component GlassButton inherits Rectangle {
+    in-out property <string> text: "Action";
+    in-out property <bool> primary: false;
+    in-out property <bool> danger: false;
+    in-out property <bool> enabled: true;
+    callback clicked();
+
+    height: 32px;
+    border-radius: Theme.radius_sm;
+    background: !root.enabled ? #ffffff06 : 
+                root.danger ? (touch.pressed ? Theme.danger_pressed : touch.has-hover ? Theme.danger_hover : Theme.danger) :
+                root.primary ? (touch.pressed ? Theme.primary_pressed : touch.has-hover ? Theme.primary_hover : Theme.primary) : 
+                (touch.pressed ? Theme.btn_pressed : touch.has-hover ? Theme.btn_hover : Theme.btn_bg);
+    border-width: 1px;
+    border-color: !root.enabled ? #ffffff0a :
+                  root.danger ? Theme.primary_border :
+                  root.primary ? Theme.primary_border : 
+                  (touch.has-hover ? #ffffff28 : Theme.btn_border);
+
+    animate background, border-color { duration: 120ms; }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.clicked(); }
+    }
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        alignment: center;
+
+        Text {
+            text: root.text;
+            color: !root.enabled ? Theme.text_subtle : Theme.text_primary;
+            font-size: 12px;
+            font-weight: (root.primary || root.danger) ? 700 : 500;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+        }
+    }
+}
