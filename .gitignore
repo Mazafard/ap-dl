@@ -1,0 +1,17 @@
+# Build artifacts
+/target/
+/dist/
+
+
+# Downloaded files & temporary parts (prevents cargo watch from restarting)
+*.mp4
+*.mp4.part
+*.part
+/downloads/
+/output/
+
+# OS / Editor files
+.DS_Store
+*.swp
+.idea/
+.vscode/
