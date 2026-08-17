@@ -1,8 +1,8 @@
 # APDL - Makefile
-VERSION ?= 0.0.1
+VERSION ?= 0.1.0
 TAG_NAME = v$(VERSION)
 
-.PHONY: all build release tag check test run clean help
+.PHONY: all build release tag check test run clean help icons app bundle dmg notarize
 
 all: check build
 
@@ -13,9 +13,13 @@ help:
 	@echo "  make run               - Run application in release mode"
 	@echo "  make watch             - Run with live file watcher"
 	@echo "  make build             - Build optimized local release binary"
-	@echo "  make tag VERSION=0.0.1 - Create and push git tag to trigger GitHub Release"
-	@echo "  make release VERSION=0.0.1 - Update version, commit, tag, and trigger CI/CD"
-	@echo "  make clean             - Clean build targets and temporary parts"
+	@echo "  make icons             - Generate multi-resolution AppIcon.icns"
+	@echo "  make app / bundle      - Create standalone APDL.app bundle"
+	@echo "  make dmg               - Create drag-and-drop APDL.dmg installer"
+	@echo "  make notarize          - Notarize and staple APDL.dmg with Apple"
+	@echo "  make tag VERSION=0.1.0 - Create and push git tag to trigger GitHub Release"
+	@echo "  make release VERSION=0.1.0 - Bump version, commit, tag, and publish"
+	@echo "  make clean             - Clean build targets and dist artifacts"
 
 check:
 	cargo check
@@ -32,27 +36,22 @@ watch:
 build:
 	cargo build --release
 
-# Package macOS APDL.app bundle with native icon
-app: build
-	@echo "Creating APDL.app bundle..."
-	@mkdir -p dist/APDL.app/Contents/MacOS
-	@mkdir -p dist/APDL.app/Contents/Resources
-	@cp target/release/ap-dl dist/APDL.app/Contents/MacOS/APDL
-	@cp assets/icon.icns dist/APDL.app/Contents/Resources/AppIcon.icns
-	@cp assets/icon.png dist/APDL.app/Contents/Resources/icon.png
-	@echo '<?xml version="1.0" encoding="UTF-8"?>' > dist/APDL.app/Contents/Info.plist
-	@echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> dist/APDL.app/Contents/Info.plist
-	@echo '<plist version="1.0"><dict>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>CFBundleExecutable</key><string>APDL</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>CFBundleIconFile</key><string>AppIcon</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>CFBundleIdentifier</key><string>com.apdl.app</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>CFBundleName</key><string>APDL</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>CFBundlePackageType</key><string>APPL</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>CFBundleShortVersionString</key><string>$(VERSION)</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>LSMinimumSystemVersion</key><string>10.13</string>' >> dist/APDL.app/Contents/Info.plist
-	@echo '  <key>NSHighResolutionCapable</key><true/>' >> dist/APDL.app/Contents/Info.plist
-	@echo '</dict></plist>' >> dist/APDL.app/Contents/Info.plist
-	@echo "APDL.app created at dist/APDL.app! You can launch it with: open dist/APDL.app"
+icons:
+	./scripts/generate_icons.sh
+
+# Package macOS APDL.app bundle
+app: bundle
+
+bundle:
+	./scripts/bundle_macos.sh $(VERSION)
+
+# Create compressed drag-and-drop DMG installer
+dmg:
+	./scripts/create_dmg.sh $(VERSION)
+
+# Notarize DMG with Apple
+notarize:
+	./scripts/notarize_dmg.sh dist/APDL.dmg
 
 # Tag current commit with version and push to remote
 tag:
@@ -74,4 +73,4 @@ release:
 
 clean:
 	cargo clean
-	rm -f *.mp4 *.part *.tar.gz *.zip
+	rm -rf dist/ *.mp4 *.part *.tar.gz *.zip *.dmg
