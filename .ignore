@@ -1,0 +1,8 @@
+# Watchexec / Cargo-watch ignore rules
+target/
+*.mp4
+*.mp4.part
+*.part
+downloads/
+output/
+.DS_Store
