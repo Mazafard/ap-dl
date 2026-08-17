@@ -1,0 +1,170 @@
+import { Theme } from "../theme.slint";
+import { GlassCard } from "../components/glass_card.slint";
+import { GlassButton } from "../components/glass_button.slint";
+
+export component SidebarView inherits VerticalLayout {
+    in-out property <string> collection_title: "No media loaded";
+    in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
+    in-out property <string> destination_path: "~/Downloads";
+    in-out property <string> app_version: "v0.0.1";
+    
+    callback open_add_modal();
+    callback browse_path();
+
+    width: 280px;
+    spacing: 14px;
+
+    // Traffic Lights Inset Clearance (macOS Window Controls)
+    Rectangle {
+        height: 16px;
+    }
+
+    // App Branding
+    HorizontalLayout {
+        spacing: 10px;
+        alignment: start;
+
+        Rectangle {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            clip: true;
+            Image {
+                source: @image-url("../../assets/icon.png");
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        VerticalLayout {
+            alignment: center;
+            spacing: 1px;
+
+            HorizontalLayout {
+                spacing: 5px;
+                alignment: start;
+
+                Text {
+                    text: "APDL";
+                    font-size: 16px;
+                    font-weight: 800;
+                    color: Theme.text_primary;
+                    vertical-alignment: center;
+                }
+
+                // Clean superscript upper version tag
+                Rectangle {
+                    height: 13px;
+                    border-radius: 3px;
+                    background: #f43f5e18;
+                    border-width: 1px;
+                    border-color: #f43f5e33;
+                    y: 0px; // Aligned to upper cap-height of title
+
+                    HorizontalLayout {
+                        padding-left: 4px;
+                        padding-right: 4px;
+                        alignment: center;
+
+                        Text {
+                            text: root.app_version;
+                            font-size: 8px;
+                            font-weight: 700;
+                            color: #f43f5e;
+                            vertical-alignment: center;
+                            horizontal-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            Text {
+                text: "Aparat Video & Playlist Downloader";
+                font-size: 10px;
+                color: Theme.text_muted;
+            }
+        }
+    }
+
+    // Add Link Action Trigger Card
+    GlassCard {
+        VerticalLayout {
+            padding: 14px;
+            spacing: 10px;
+
+            Text {
+                text: "CONTENT INGESTION";
+                font-size: 10px;
+                font-weight: 700;
+                color: Theme.text_muted;
+            }
+
+            GlassButton {
+                text: "+ Add Stream / Playlist";
+                primary: true;
+                height: 38px;
+                clicked => { root.open_add_modal(); }
+            }
+        }
+    }
+
+    // Collection Metadata Overview
+    GlassCard {
+        vertical-stretch: 1;
+        VerticalLayout {
+            padding: 12px;
+            spacing: 8px;
+
+            Text {
+                text: "COLLECTION INFO";
+                font-size: 10px;
+                font-weight: 700;
+                color: Theme.text_muted;
+            }
+
+            Text {
+                text: root.collection_title;
+                font-size: 13px;
+                font-weight: 600;
+                color: Theme.text_primary;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: root.collection_details;
+                font-size: 11px;
+                color: Theme.text_muted;
+            }
+
+            Rectangle { vertical-stretch: 1; }
+        }
+    }
+
+    // Destination Folder Selector
+    GlassCard {
+        VerticalLayout {
+            padding: 12px;
+            spacing: 8px;
+
+            Text {
+                text: "SAVE LOCATION";
+                font-size: 10px;
+                font-weight: 700;
+                color: Theme.text_muted;
+            }
+
+            Text {
+                text: root.destination_path;
+                font-size: 11px;
+                color: Theme.text_secondary;
+                overflow: elide;
+            }
+
+            GlassButton {
+                text: "Change Folder";
+                height: 34px;
+                clicked => { root.browse_path(); }
+            }
+        }
+    }
+}
