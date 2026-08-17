@@ -1,0 +1,12 @@
+export struct MediaItem {
+    id: string,
+    index_label: string,
+    title: string,
+    duration: string,
+    resolution: string,
+    file_size: string,
+    progress: float,
+    speed_text: string,
+    status_code: int, // 0: Idle, 1: Downloading, 2: Completed, 3: Error
+    selected: bool,
+}
