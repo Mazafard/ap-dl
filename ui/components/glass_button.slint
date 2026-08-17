@@ -5,6 +5,8 @@ export component GlassButton inherits Rectangle {
     in-out property <bool> primary: false;
     in-out property <bool> danger: false;
     in-out property <bool> enabled: true;
+    in-out property <image> icon;
+    in-out property <bool> has_icon: false;
     callback clicked();
 
     height: 32px;
@@ -29,7 +31,22 @@ export component GlassButton inherits Rectangle {
     HorizontalLayout {
         padding-left: 14px;
         padding-right: 14px;
+        spacing: 8px;
         alignment: center;
+
+        if root.has_icon: Rectangle {
+            width: 14px;
+            height: 14px;
+            y: (parent.height - self.height) / 2;
+
+            Image {
+                width: 100%;
+                height: 100%;
+                source: root.icon;
+                image-fit: contain;
+                colorize: !root.enabled ? Theme.text_subtle : #ffffff;
+            }
+        }
 
         Text {
             text: root.text;
