@@ -1,0 +1,30 @@
+import { Theme } from "../theme.slint";
+
+export component GlassScrollView inherits Rectangle {
+    in-out property <length> viewport_width <=> flick.viewport_width;
+    in-out property <length> viewport_height <=> flick.viewport_height;
+    in-out property <length> viewport_x <=> flick.viewport_x;
+    in-out property <length> viewport_y <=> flick.viewport_y;
+
+    clip: true;
+
+    flick := Flickable {
+        width: 100%;
+        height: 100%;
+        @children
+    }
+
+    // Custom Minimalist Glass Scrollbar Thumb
+    if flick.viewport_height > root.height : Rectangle {
+        width: thumb_touch.has-hover ? 6px : 4px;
+        x: root.width - self.width - 2px;
+        y: (-flick.viewport_y / (flick.viewport_height - root.height)) * (root.height - self.height);
+        height: Math.max(24px, (root.height / flick.viewport_height) * root.height);
+        border-radius: 3px;
+        background: thumb_touch.has-hover ? #ffffff4c : #ffffff24;
+
+        animate width, background { duration: 120ms; }
+
+        thumb_touch := TouchArea {}
+    }
+}
