@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Linux GUI Dependencies
         run: |
-          sudo apt-get update -o Dir::Etc::sourcelist="sources.list" -o Dir::Etc::sourceparts="-"
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libfontconfig1-dev \
             libxcb-render0-dev \
@@ -254,7 +254,7 @@ jobs:
 
       - name: Install Linux GUI Dependencies
         run: |
-          sudo apt-get update -o Dir::Etc::sourcelist="sources.list" -o Dir::Etc::sourceparts="-"
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libfontconfig1-dev \
             libxcb-render0-dev \
