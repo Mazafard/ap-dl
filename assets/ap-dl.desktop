@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=APDL
+GenericName=Aparat Downloader
+Comment=Fast, modern Aparat Video & Playlist Downloader
+Exec=ap-dl %U
+Icon=ap-dl
+Terminal=false
+Type=Application
+Categories=Network;AudioVideo;Video;
+StartupNotify=true
+StartupWMClass=ap-dl
+Keywords=aparat;downloader;video;playlist;streaming;
