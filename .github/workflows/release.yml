@@ -180,6 +180,8 @@ jobs:
           mkdir -p macos_artifacts
           cp "${DMG_NAME}" macos_artifacts/
           cp "${ARCHIVE_NAME}" macos_artifacts/
+          cp "${DMG_NAME}" macos_artifacts/ap-dl-macos-arm64.dmg
+          cp "${ARCHIVE_NAME}" macos_artifacts/ap-dl-macos-arm64.zip
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v7
@@ -234,7 +236,8 @@ jobs:
           if (Test-Path "assets") { Copy-Item "assets" -Recurse -Destination dist_win/ }
           Compress-Archive -Path dist_win/* -DestinationPath $ArchiveName
           New-Item -ItemType Directory -Force -Path win_artifacts
-          Move-Item $ArchiveName -Destination win_artifacts/
+          Copy-Item $ArchiveName -Destination win_artifacts/
+          Copy-Item $ArchiveName -Destination win_artifacts/ap-dl-windows-x64.zip
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v7
@@ -320,6 +323,7 @@ jobs:
           tar -czvf "${ARCHIVE_NAME}" -C dist_linux .
           mkdir -p linux_artifacts
           cp "${ARCHIVE_NAME}" linux_artifacts/
+          cp "${ARCHIVE_NAME}" linux_artifacts/ap-dl-linux-x64.tar.gz
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v7

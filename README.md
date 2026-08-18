@@ -20,13 +20,24 @@ A fast, async desktop application built in **Rust** using **Slint UI** and **Tok
 
 ---
 
+## 📥 Download APDL (Latest Release)
+
+| Platform | Architecture | Package Format | Direct Download Link |
+| :--- | :--- | :--- | :--- |
+| ![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white) | **Apple Silicon (M1/M2/M3/M4)** | `.dmg` Installer / `.zip` | [⬇️ **Download for macOS (Apple Silicon)**](https://github.com/Mazafard/ap-dl/releases/latest/download/ap-dl-macos-arm64.dmg) |
+| ![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white) | **Windows (x64 / 64-bit)** | `.zip` Standalone | [⬇️ **Download for Windows (x64)**](https://github.com/Mazafard/ap-dl/releases/latest/download/ap-dl-windows-x64.zip) |
+| ![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black) | **Linux (x86_64)** | `.tar.gz` Bundle | [⬇️ **Download for Linux (x64)**](https://github.com/Mazafard/ap-dl/releases/latest/download/ap-dl-linux-x64.tar.gz) |
+
+> 💡 *All download links automatically resolve to the **latest release** with zero hardcoded version tags.*
+
+---
+
 > [!IMPORTANT]
 > ### ⚠️ Educational & Non-Commercial Disclaimer
 > This project was created **strictly for learning and educational purposes** to explore Rust language fundamentals, Tokio asynchronous runtime, HTTP streaming, and Slint GUI development.
-> 
 > - This software is **NOT intended for commercial use**.
 > - It is not affiliated with, endorsed by, or associated with Aparat or Saba Idea.
-> - Users are solely responsible for ensuring their usage complies with all applicable copyright laws and the terms of service of the content provider.
+> - Users are solely responsible for ensuring their usage complies with all applicable copyright laws and terms of service.
 
 ---
 
@@ -35,19 +46,17 @@ A fast, async desktop application built in **Rust** using **Slint UI** and **Tok
 - **Single Video Downloader**: Paste any Aparat video link (e.g., `https://www.aparat.com/v/XXXXX`), inspect metadata (title, duration, channel), and pick your desired quality (1080p, 720p, 480p, 360p, 240p, 144p).
 - **Playlist Extractor**: Paste a playlist link (e.g., `https://www.aparat.com/playlist/XXXXX`) to automatically load all videos into the batch queue.
 - **In-App Auto Updater & One-Click Installer**: Automatically checks GitHub Releases, streams update archives with live progress, performs atomic binary replacement (`self-replace`), and restarts into the new version.
+- **In-App "What's New" Changelog Viewer**: Interactive frosted glass dialog showcasing version release highlights directly fetched from GitHub.
 - **Resumable Chunk Streaming**: Uses HTTP `Range` requests to automatically resume dropped or interrupted downloads from where they left off.
 - **Intelligent CDN Failover**: Seamlessly fails over across high-availability CDN edge mirrors if a local node times out.
 - **Cross-Platform Native Menu Bars**: Native AppKit top system menubar on macOS; sleek in-window frosted glass menubar on Windows & Linux.
 - **Native Platform Polish**: Embedded taskbar `.ico` and console suppression on Windows; Freedesktop `.desktop` launcher and desktop icon on Linux.
 - **Frosted Glass Startup Experience**: Smooth startup splash screen with glowing APDL branding, progressive loader track, and initialization status.
 - **Custom "About APDL" Modal**: Beautiful frosted glass dialog showing author credits, project links (GitHub, Bug Tracker, Docs), and legal disclaimer.
-- **Real-Time Progress Tracking**: Live speed (MB/s), downloaded bytes, and percentage progress bars.
 
 ---
 
 ## 🛠 Makefile Automation Commands
-
-A comprehensive [`Makefile`](file:///Volumes/CrucialX9/ap-dl/Makefile) is provided for easy development, testing, packaging, and CI/CD releases.
 
 | Command | Description |
 | :--- | :--- |
@@ -60,24 +69,6 @@ A comprehensive [`Makefile`](file:///Volumes/CrucialX9/ap-dl/Makefile) is provid
 | **`make check`** | Fast compiler syntax and type checking |
 | **`make release VERSION=0.3.0`** | Central version bump, commit, tag, and trigger multi-platform CI/CD in 1 step |
 | **`make clean`** | Clean cargo build artifacts and temporary download files |
-
----
-
-## 🚀 Getting Started
-
-### 1. Prerequisites
-Make sure [Rust & Cargo](https://rustup.rs) are installed.
-
-### 2. Running in Development
-```bash
-make watch
-```
-
-### 3. Running as a Native macOS App
-```bash
-make app
-open dist/APDL.app
-```
 
 ---
 
