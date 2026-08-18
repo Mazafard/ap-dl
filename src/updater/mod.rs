@@ -1,3 +1,4 @@
+pub mod changelog_fetcher;
 pub mod checker;
 pub mod github;
 pub mod installer;

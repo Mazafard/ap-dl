@@ -1,3 +1,4 @@
+use crate::updater::changelog_fetcher::{extract_section_for_version, fetch_raw_changelog};
 use crate::updater::github::fetch_latest_release;
 use crate::updater::installer::asset_matcher::find_matching_asset;
 use crate::updater::types::{UpdateCheckResult, UpdateInfo};
@@ -20,12 +21,21 @@ pub async fn check_update(current_version: &str) -> UpdateCheckResult {
         Ok(release) => {
             if is_newer_version(&release.tag_name, current_version) {
                 let download_url = find_matching_asset(&release.assets).map(|a| a.browser_download_url.clone());
+                
+                // Fetch rich release highlights directly from GitHub CHANGELOG.md
+                let release_notes = if let Ok(raw_changelog) = fetch_raw_changelog().await {
+                    extract_section_for_version(&raw_changelog, &release.tag_name)
+                        .unwrap_or_else(|| release.body.clone().unwrap_or_default())
+                } else {
+                    release.body.unwrap_or_default()
+                };
+
                 UpdateCheckResult::UpdateAvailable(UpdateInfo {
                     current_version: current_version.to_string(),
                     latest_version: release.tag_name.clone(),
                     release_name: release.name.unwrap_or(release.tag_name),
                     release_url: release.html_url,
-                    release_notes: release.body.unwrap_or_default(),
+                    release_notes,
                     download_url,
                 })
             } else {
