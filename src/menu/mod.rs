@@ -28,11 +28,21 @@ impl MenuManager {
 
             if let Some(mtm) = MainThreadMarker::new() {
                 let ns_app = NSApplication::sharedApplication(mtm);
-                let menubar = NSMenu::new(mtm);
+                let menubar = unsafe {
+                    let m = if let Some(existing) = ns_app.mainMenu() {
+                        existing.removeAllItems();
+                        existing
+                    } else {
+                        let new_m = NSMenu::new(mtm);
+                        ns_app.setMainMenu(Some(&new_m));
+                        new_m
+                    };
+                    m.setAutoenablesItems(false);
+                    m
+                };
 
                 let target = handler::create_target(mtm, _app.as_weak(), _state);
-
-                let app_item = app_menu::build(mtm);
+                let app_item = app_menu::build(mtm, &target);
                 let file_item = file_menu::build(mtm, &target);
                 let edit_item = edit_menu::build(mtm);
                 let view_item = view_menu::build(mtm);
@@ -56,16 +66,11 @@ impl MenuManager {
                     ns_app.setMainMenu(Some(&menubar));
                 }
 
-                // Prevent Rust from dropping menubar at function exit
                 let raw = Retained::into_raw(menubar);
                 let old = MENUBAR_STORAGE.swap(raw as *mut _, std::sync::atomic::Ordering::SeqCst);
                 if !old.is_null() {
-                    unsafe {
-                        let _ = Retained::from_raw(old as *mut NSMenu);
-                    }
+                    unsafe { let _ = Retained::from_raw(old as *mut NSMenu); }
                 }
-
-                log::info!("Native macOS menu bar attached and persisted permanently");
             }
         }
     }

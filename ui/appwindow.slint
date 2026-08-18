@@ -1,91 +1,91 @@
 import { Theme } from "theme.slint";
 import { MediaItem } from "models.slint";
-import { SidebarView } from "views/sidebar.slint";
-import { QueueView } from "views/queue_view.slint";
+import { MainContent } from "views/main_content.slint";
 import { UrlModalDialog } from "views/url_modal.slint";
+import { SplashScreen } from "components/splash_screen.slint";
+import { UpdateDialog } from "components/update_dialog.slint";
+import { AboutDialog } from "components/about_dialog.slint";
+import { ToastNotification } from "components/toast_notification.slint";
 
 export { MediaItem }
 
 export component AppWindow inherits Window {
     title: "APDL — Aparat Downloader";
     icon: @image-url("../assets/icon.png");
-    min-width: 960px;
-    min-height: 620px;
-    preferred-width: 1040px;
-    preferred-height: 680px;
-    background: #00000000; // Pass-through for OS native vibrancy blur
+    min-width: 960px; min-height: 620px;
+    preferred-width: 1040px; preferred-height: 680px;
+    background: #00000000;
     default-font-family: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
 
-    // Application State Properties
+    // Application & Modal State
     in-out property <string> destination_path: "~/Downloads";
     in-out property <string> collection_title: "No media loaded";
     in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
     in-out property <string> total_speed: "Ready";
     in-out property <bool> is_downloading: false;
     in-out property <[MediaItem]> media_items: [];
-
-    // Modal State & Properties
     in-out property <bool> show_url_modal: false;
     in-out property <string> modal_url_input: "";
     in-out property <string> validation_message: "";
     in-out property <bool> is_analyzing: false;
 
-    // Callbacks to Rust Backend
-    callback paste_from_clipboard();
-    callback submit_url(string);
-    callback browse_path();
-    callback toggle_select_all(bool);
-    callback toggle_item(int);
-    callback start_download();
-    callback cancel_download();
+    // Splash, Update, About & Toast Properties
+    in-out property <bool> show_splash: true;
+    in-out property <string> splash_status: "Initializing APDL...";
+    in-out property <float> splash_progress: 0.15;
+    in-out property <bool> show_update_dialog: false;
+    in-out property <bool> show_about_dialog: false;
+    in-out property <bool> update_available: false;
+    in-out property <string> current_version: "0.2.0";
+    in-out property <string> latest_version: "0.2.0";
+    in-out property <string> release_notes: "";
+    in-out property <string> release_url: "https://github.com/Mazafard/ap-dl/releases/latest";
+    in-out property <bool> show_toast: false;
+    in-out property <string> toast_message: "";
 
-    // Main Visual Shell
-    Rectangle {
-        background: Theme.shell_bg;
-        border-radius: Theme.radius_xl;
-        border-width: 1px;
-        border-color: Theme.shell_border;
+    // Callbacks
+    callback paste_from_clipboard(); callback submit_url(string); callback browse_path();
+    callback toggle_select_all(bool); callback toggle_item(int);
+    callback start_download(); callback cancel_download(); callback download_update();
+    callback open_repo(); callback open_issues(); callback open_docs(); callback check_updates_from_about();
 
-        HorizontalLayout {
-            padding: 16px;
-            spacing: 16px;
-
-            // 1. Sidebar Feature View
-            SidebarView {
-                collection_title: root.collection_title;
-                collection_details: root.collection_details;
-                destination_path: root.destination_path;
-                open_add_modal => {
-                    root.validation_message = "";
-                    root.show_url_modal = true;
-                }
-                browse_path => { root.browse_path(); }
-            }
-
-            // 2. Queue Stream Feature View
-            QueueView {
-                media_items: root.media_items;
-                total_speed: root.total_speed;
-                is_downloading: root.is_downloading;
-                open_add_modal => {
-                    root.validation_message = "";
-                    root.show_url_modal = true;
-                }
-                toggle_select_all(state) => { root.toggle_select_all(state); }
-                toggle_item(idx) => { root.toggle_item(idx); }
-                start_download => { root.start_download(); }
-                cancel_download => { root.cancel_download(); }
-            }
-        }
+    MainContent {
+        destination_path <=> root.destination_path; collection_title <=> root.collection_title;
+        collection_details <=> root.collection_details; total_speed <=> root.total_speed;
+        is_downloading <=> root.is_downloading; media_items <=> root.media_items;
+        open_add_modal => { root.validation_message = ""; root.show_url_modal = true; }
+        browse_path => { root.browse_path(); }
+        toggle_select_all(s) => { root.toggle_select_all(s); }
+        toggle_item(i) => { root.toggle_item(i); }
+        start_download => { root.start_download(); }
+        cancel_download => { root.cancel_download(); }
     }
 
-    // 3. Modal Overlay Dialog
     if root.show_url_modal: UrlModalDialog {
-        modal_url_input <=> root.modal_url_input;
-        validation_message <=> root.validation_message;
-        is_analyzing: root.is_analyzing;
-        close_modal => { root.show_url_modal = false; }
-        paste_from_clipboard => { root.paste_from_clipboard(); }
-        submit_url(url) => { root.submit_url(url); }
+        modal_url_input <=> root.modal_url_input; validation_message <=> root.validation_message;
+        is_analyzing: root.is_analyzing; close_modal => { root.show_url_modal = false; }
+        paste_from_clipboard => { root.paste_from_clipboard(); } submit_url(url) => { root.submit_url(url); }
+    }
+
+    if root.show_update_dialog: UpdateDialog {
+        is_visible: root.show_update_dialog; current_version: root.current_version;
+        latest_version: root.latest_version; release_notes: root.release_notes;
+        download_update => { root.download_update(); } dismiss => { root.show_update_dialog = false; }
+    }
+
+    if root.show_about_dialog: AboutDialog {
+        is_visible: root.show_about_dialog; app_version: "v" + root.current_version;
+        check_updates => { root.check_updates_from_about(); }
+        open_repo => { root.open_repo(); } open_issues => { root.open_issues(); } open_docs => { root.open_docs(); }
+        dismiss => { root.show_about_dialog = false; }
+    }
+
+    if root.show_toast: ToastNotification {
+        x: (parent.width - self.width) / 2; y: 20px;
+        is_visible: root.show_toast; message: root.toast_message; dismiss => { root.show_toast = false; }
+    }
+
+    if root.show_splash: SplashScreen {
+        is_visible: root.show_splash; status_text: root.splash_status; progress: root.splash_progress;
     }
 }

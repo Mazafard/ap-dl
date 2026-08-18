@@ -1,9 +1,9 @@
 #[cfg(target_os = "macos")]
-use objc2::rc::Retained;
-#[cfg(target_os = "macos")]
-use objc2_app_kit::{NSMenu, NSMenuItem};
-#[cfg(target_os = "macos")]
-use objc2_foundation::{ns_string, MainThreadMarker};
+use {
+    objc2::rc::Retained,
+    objc2_app_kit::{NSMenu, NSMenuItem},
+    objc2_foundation::{ns_string, MainThreadMarker},
+};
 
 #[cfg(target_os = "macos")]
 pub fn build(mtm: MainThreadMarker) -> Retained<NSMenuItem> {
@@ -13,36 +13,43 @@ pub fn build(mtm: MainThreadMarker) -> Retained<NSMenuItem> {
 
         let edit_menu = NSMenu::new(mtm);
         edit_menu.setTitle(ns_string!("Edit"));
+        edit_menu.setAutoenablesItems(false);
 
         let undo = NSMenuItem::new(mtm);
         undo.setTitle(ns_string!("Undo"));
         undo.setAction(Some(objc2::sel!(undo:)));
         undo.setKeyEquivalent(ns_string!("z"));
+        undo.setEnabled(true);
 
         let redo = NSMenuItem::new(mtm);
         redo.setTitle(ns_string!("Redo"));
         redo.setAction(Some(objc2::sel!(redo:)));
         redo.setKeyEquivalent(ns_string!("Z"));
+        redo.setEnabled(true);
 
         let cut = NSMenuItem::new(mtm);
         cut.setTitle(ns_string!("Cut"));
         cut.setAction(Some(objc2::sel!(cut:)));
         cut.setKeyEquivalent(ns_string!("x"));
+        cut.setEnabled(true);
 
         let copy = NSMenuItem::new(mtm);
         copy.setTitle(ns_string!("Copy"));
         copy.setAction(Some(objc2::sel!(copy:)));
         copy.setKeyEquivalent(ns_string!("c"));
+        copy.setEnabled(true);
 
         let paste = NSMenuItem::new(mtm);
         paste.setTitle(ns_string!("Paste"));
         paste.setAction(Some(objc2::sel!(paste:)));
         paste.setKeyEquivalent(ns_string!("v"));
+        paste.setEnabled(true);
 
         let select_all = NSMenuItem::new(mtm);
         select_all.setTitle(ns_string!("Select All"));
         select_all.setAction(Some(objc2::sel!(selectAll:)));
         select_all.setKeyEquivalent(ns_string!("a"));
+        select_all.setEnabled(true);
 
         edit_menu.addItem(&undo);
         edit_menu.addItem(&redo);

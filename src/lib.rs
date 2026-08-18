@@ -3,8 +3,10 @@ pub mod downloader;
 pub mod error;
 pub mod logger;
 pub mod menu;
+pub mod startup;
 pub mod state;
 pub mod ui_adapter;
+pub mod updater;
 pub mod window_setup;
 
 use state::AppState;
@@ -36,18 +38,8 @@ pub fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     let state = AppState::new(default_download_dir);
     menu::MenuManager::setup(&app, state.clone());
 
-    #[cfg(target_os = "macos")]
-    {
-        let state_c = state.clone();
-        let app_weak = app.as_weak();
-        let _ = slint::invoke_from_event_loop(move || {
-            if let Some(ui) = app_weak.upgrade() {
-                menu::MenuManager::setup(&ui, state_c);
-            }
-        });
-    }
-
-    UiAdapter::attach(&app, state);
+    UiAdapter::attach(&app, state.clone());
+    startup::StartupCoordinator::start_sequence(&app, state);
     app.run()?;
     Ok(())
 }
