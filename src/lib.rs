@@ -18,6 +18,7 @@ slint::include_modules!();
 pub fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     logger::init();
     let app = AppWindow::new()?;
+    app.set_is_macos(cfg!(target_os = "macos"));
 
     #[cfg(target_os = "macos")]
     {

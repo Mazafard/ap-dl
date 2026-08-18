@@ -1,0 +1,46 @@
+import { Theme } from "../../theme.slint";
+import { MenuDropdownRow } from "menu_dropdown_row.slint";
+
+export component MenuDropdown inherits Rectangle {
+    in property <int> active_menu: 0; // 1: File, 2: Edit, 3: View, 4: Help
+    callback add_link();
+    callback open_folder();
+    callback check_updates();
+    callback show_about();
+    callback dismiss();
+
+    width: 210px;
+    border-radius: 10px;
+    background: @linear-gradient(145deg, #1A1F2CFA, #11141EFA);
+    border-width: 1px;
+    border-color: #FFFFFF.transparentize(82%);
+    drop-shadow-blur: 16px;
+    drop-shadow-color: #000000.transparentize(40%);
+
+    VerticalLayout {
+        padding: 6px;
+        spacing: 2px;
+
+        if root.active_menu == 1 : VerticalLayout {
+            spacing: 2px;
+            MenuDropdownRow { text: "Add Stream / Playlist..."; shortcut: "Ctrl+N"; clicked => { root.add_link(); root.dismiss(); } }
+            MenuDropdownRow { text: "Open Downloads Folder"; shortcut: "Ctrl+O"; clicked => { root.open_folder(); root.dismiss(); } }
+        }
+
+        if root.active_menu == 2 : VerticalLayout {
+            spacing: 2px;
+            MenuDropdownRow { text: "Paste Link"; shortcut: "Ctrl+V"; clicked => { root.add_link(); root.dismiss(); } }
+        }
+
+        if root.active_menu == 3 : VerticalLayout {
+            spacing: 2px;
+            MenuDropdownRow { text: "Toggle Fullscreen"; shortcut: "F11"; clicked => { root.dismiss(); } }
+        }
+
+        if root.active_menu == 4 : VerticalLayout {
+            spacing: 2px;
+            MenuDropdownRow { text: "About APDL"; clicked => { root.show_about(); root.dismiss(); } }
+            MenuDropdownRow { text: "Check for Updates..."; clicked => { root.check_updates(); root.dismiss(); } }
+        }
+    }
+}

@@ -2,8 +2,10 @@ import { Theme } from "../theme.slint";
 import { MediaItem } from "../models.slint";
 import { SidebarView } from "sidebar.slint";
 import { QueueView } from "queue_view.slint";
+import { InWindowMenubar } from "../components/menu/in_window_menubar.slint";
 
 export component MainContent inherits Rectangle {
+    in property <bool> is_macos: false;
     in-out property <string> destination_path: "~/Downloads";
     in-out property <string> collection_title: "No media loaded";
     in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
@@ -13,6 +15,8 @@ export component MainContent inherits Rectangle {
 
     callback open_add_modal();
     callback browse_path();
+    callback check_updates();
+    callback show_about();
     callback toggle_select_all(bool);
     callback toggle_item(int);
     callback start_download();
@@ -23,27 +27,37 @@ export component MainContent inherits Rectangle {
     border-width: 1px;
     border-color: Theme.shell_border;
 
-    HorizontalLayout {
-        padding: 16px;
-        spacing: 16px;
-
-        SidebarView {
-            collection_title: root.collection_title;
-            collection_details: root.collection_details;
-            destination_path: root.destination_path;
-            open_add_modal => { root.open_add_modal(); }
-            browse_path => { root.browse_path(); }
+    VerticalLayout {
+        InWindowMenubar {
+            is_macos: root.is_macos;
+            add_link => { root.open_add_modal(); }
+            open_folder => { root.browse_path(); }
+            check_updates => { root.check_updates(); }
+            show_about => { root.show_about(); }
         }
 
-        QueueView {
-            media_items: root.media_items;
-            total_speed: root.total_speed;
-            is_downloading: root.is_downloading;
-            open_add_modal => { root.open_add_modal(); }
-            toggle_select_all(state) => { root.toggle_select_all(state); }
-            toggle_item(idx) => { root.toggle_item(idx); }
-            start_download => { root.start_download(); }
-            cancel_download => { root.cancel_download(); }
+        HorizontalLayout {
+            padding: 16px;
+            spacing: 16px;
+
+            SidebarView {
+                collection_title: root.collection_title;
+                collection_details: root.collection_details;
+                destination_path: root.destination_path;
+                open_add_modal => { root.open_add_modal(); }
+                browse_path => { root.browse_path(); }
+            }
+
+            QueueView {
+                media_items: root.media_items;
+                total_speed: root.total_speed;
+                is_downloading: root.is_downloading;
+                open_add_modal => { root.open_add_modal(); }
+                toggle_select_all(state) => { root.toggle_select_all(state); }
+                toggle_item(idx) => { root.toggle_item(idx); }
+                start_download => { root.start_download(); }
+                cancel_download => { root.cancel_download(); }
+            }
         }
     }
 }

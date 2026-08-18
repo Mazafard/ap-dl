@@ -1,0 +1,40 @@
+import { Theme } from "../../theme.slint";
+
+export component MenuDropdownRow inherits Rectangle {
+    in property <string> text: "Menu Item";
+    in property <string> shortcut: "";
+    in property <bool> is_danger: false;
+    callback clicked();
+
+    height: 28px;
+    border-radius: 6px;
+    background: touch.pressed ? #ffffff20 : touch.has-hover ? #ffffff12 : #00000000;
+
+    animate background { duration: 120ms; }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        alignment: space-between;
+
+        Text {
+            text: root.text;
+            font-size: 12px;
+            color: root.is_danger ? #f43f5e : #F1F5F9;
+            vertical-alignment: center;
+        }
+
+        if root.shortcut != "" : Text {
+            text: root.shortcut;
+            font-size: 10px;
+            font-weight: 600;
+            color: Theme.text_subtle;
+            vertical-alignment: center;
+        }
+    }
+}

@@ -1,0 +1,32 @@
+import { Theme } from "../../theme.slint";
+
+export component MenuItemButton inherits Rectangle {
+    in property <string> text: "File";
+    in property <bool> is_active: false;
+    callback clicked();
+
+    height: 24px;
+    border-radius: 4px;
+    background: root.is_active ? #ffffff1c : touch.has-hover ? #ffffff10 : #00000000;
+
+    animate background { duration: 120ms; }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        alignment: center;
+
+        Text {
+            text: root.text;
+            font-size: 11px;
+            font-weight: 500;
+            color: root.is_active || touch.has-hover ? #FFFFFF : #CBD5E1;
+            vertical-alignment: center;
+        }
+    }
+}

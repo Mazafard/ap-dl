@@ -1,0 +1,65 @@
+import { Theme } from "../../theme.slint";
+import { MenuItemButton } from "menu_item_button.slint";
+import { MenuDropdown } from "menu_dropdown.slint";
+
+export component InWindowMenubar inherits Rectangle {
+    in property <bool> is_macos: false;
+    callback add_link();
+    callback open_folder();
+    callback check_updates();
+    callback show_about();
+
+    private property <int> open_dropdown: 0; // 0: None, 1: File, 2: Edit, 3: View, 4: Help
+
+    visible: !root.is_macos;
+    height: root.is_macos ? 0px : 32px;
+    background: #ffffff06;
+
+    Rectangle {
+        y: parent.height - 1px;
+        height: 1px;
+        background: #ffffff14;
+    }
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 4px;
+        alignment: start;
+
+        MenuItemButton {
+            text: "File";
+            is_active: root.open_dropdown == 1;
+            clicked => { root.open_dropdown = (root.open_dropdown == 1) ? 0 : 1; }
+        }
+
+        MenuItemButton {
+            text: "Edit";
+            is_active: root.open_dropdown == 2;
+            clicked => { root.open_dropdown = (root.open_dropdown == 2) ? 0 : 2; }
+        }
+
+        MenuItemButton {
+            text: "View";
+            is_active: root.open_dropdown == 3;
+            clicked => { root.open_dropdown = (root.open_dropdown == 3) ? 0 : 3; }
+        }
+
+        MenuItemButton {
+            text: "Help";
+            is_active: root.open_dropdown == 4;
+            clicked => { root.open_dropdown = (root.open_dropdown == 4) ? 0 : 4; }
+        }
+    }
+
+    if root.open_dropdown > 0 : MenuDropdown {
+        x: root.open_dropdown == 1 ? 14px : root.open_dropdown == 2 ? 56px : root.open_dropdown == 3 ? 98px : 142px;
+        y: 34px;
+        active_menu: root.open_dropdown;
+        add_link => { root.add_link(); }
+        open_folder => { root.open_folder(); }
+        check_updates => { root.check_updates(); }
+        show_about => { root.show_about(); }
+        dismiss => { root.open_dropdown = 0; }
+    }
+}
