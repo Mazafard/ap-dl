@@ -8,6 +8,7 @@ pub mod window_menu;
 
 use crate::state::AppState;
 use crate::AppWindow;
+#[cfg(target_os = "macos")]
 use slint::ComponentHandle;
 use std::sync::Arc;
 
@@ -18,7 +19,7 @@ static MENUBAR_STORAGE: std::sync::atomic::AtomicPtr<objc2_app_kit::NSMenu> =
 pub struct MenuManager;
 
 impl MenuManager {
-    pub fn setup(app: &AppWindow, state: Arc<AppState>) {
+    pub fn setup(_app: &AppWindow, _state: Arc<AppState>) {
         #[cfg(target_os = "macos")]
         {
             use objc2::rc::Retained;
@@ -29,7 +30,7 @@ impl MenuManager {
                 let ns_app = NSApplication::sharedApplication(mtm);
                 let menubar = NSMenu::new(mtm);
 
-                let target = handler::create_target(mtm, app.as_weak(), state);
+                let target = handler::create_target(mtm, _app.as_weak(), _state);
 
                 let app_item = app_menu::build(mtm);
                 let file_item = file_menu::build(mtm, &target);
@@ -69,5 +70,3 @@ impl MenuManager {
         }
     }
 }
-
-
