@@ -40,7 +40,10 @@ jobs:
 
       - name: Install Linux GUI Dependencies
         run: |
-          sudo apt-get update
+          # Bypass slow Azure mirror with direct Ubuntu archive
+          sudo sed -i 's|http://azure.archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null || true
+          sudo rm -f /etc/apt/sources.list.d/azure-cli* /etc/apt/sources.list.d/google-chrome* /etc/apt/sources.list.d/microsoft*
+          sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
             libfontconfig1-dev \
             libxcb-render0-dev \
@@ -265,7 +268,10 @@ jobs:
 
       - name: Install Linux GUI Dependencies
         run: |
-          sudo apt-get update
+          # Bypass slow Azure mirror with direct Ubuntu archive
+          sudo sed -i 's|http://azure.archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null || true
+          sudo rm -f /etc/apt/sources.list.d/azure-cli* /etc/apt/sources.list.d/google-chrome* /etc/apt/sources.list.d/microsoft*
+          sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
             libfontconfig1-dev \
             libxcb-render0-dev \
