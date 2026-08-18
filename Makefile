@@ -1,5 +1,5 @@
 # APDL - Makefile
-VERSION ?= 0.2.0
+VERSION ?= 0.2.1
 TAG_NAME = v$(VERSION)
 
 .PHONY: all build release tag check test run clean help icons app bundle dmg notarize
@@ -17,8 +17,8 @@ help:
 	@echo "  make app / bundle          - Create standalone APDL.app bundle"
 	@echo "  make dmg                   - Create drag-and-drop APDL.dmg installer"
 	@echo "  make notarize              - Notarize and staple APDL.dmg with Apple"
-	@echo "  make tag VERSION=0.2.0     - Push git tag to trigger GitHub Release"
-	@echo "  make release VERSION=0.2.1 - Bump version in all files, commit, tag & push"
+	@echo "  make tag VERSION=0.2.1     - Push git tag to trigger GitHub Release"
+	@echo "  make release VERSION=0.2.1 - Central version bump, tag & push in 1 step"
 	@echo "  make clean                 - Clean build targets and dist artifacts"
 
 check:
@@ -60,15 +60,13 @@ tag:
 	@git push origin $(TAG_NAME)
 	@echo "Tag $(TAG_NAME) pushed successfully! GitHub Actions will now build and publish the release."
 
-# Fully automated single-command release workflow
+# Fully automated centralized single-command release workflow
 release:
 	@echo "Preparing release $(TAG_NAME)..."
 	@sed -i '' 's/^version = .*/version = "$(VERSION)"/' Cargo.toml 2>/dev/null || sed -i 's/^version = .*/version = "$(VERSION)"/' Cargo.toml
-	@sed -i '' 's/current_version: ".*"/current_version: "$(VERSION)"/' ui/appwindow.slint 2>/dev/null || true
-	@sed -i '' 's/latest_version: ".*"/latest_version: "$(VERSION)"/' ui/appwindow.slint 2>/dev/null || true
-	@sed -i '' 's/app_version: "v.*"/app_version: "$(TAG_NAME)"/' ui/components/about/about_info.slint 2>/dev/null || true
+	@sed -i '' 's/version: ".*"/version: "$(VERSION)"/' ui/models.slint 2>/dev/null || true
 	@cargo check --quiet
-	@git add Cargo.toml Cargo.lock ui/appwindow.slint ui/components/about/about_info.slint
+	@git add Cargo.toml Cargo.lock ui/models.slint
 	@git commit -m "chore: bump version to $(TAG_NAME)" || true
 	@git tag -a $(TAG_NAME) -m "Release $(TAG_NAME)"
 	@git push origin HEAD

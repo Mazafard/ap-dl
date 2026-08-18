@@ -1,5 +1,5 @@
 import { Theme } from "theme.slint";
-import { MediaItem } from "models.slint";
+import { MediaItem, AppInfo } from "models.slint";
 import { MainContent } from "views/main_content.slint";
 import { UrlModalDialog } from "views/url_modal.slint";
 import { SplashScreen } from "components/splash_screen.slint";
@@ -7,7 +7,7 @@ import { UpdateDialog } from "components/update_dialog.slint";
 import { AboutDialog } from "components/about_dialog.slint";
 import { ToastNotification } from "components/toast_notification.slint";
 
-export { MediaItem }
+export { MediaItem, AppInfo }
 
 export component AppWindow inherits Window {
     title: "APDL — Aparat Downloader";
@@ -40,8 +40,8 @@ export component AppWindow inherits Window {
     in-out property <bool> is_installing_update: false;
     in-out property <float> update_progress: 0.0;
     in-out property <string> update_status: "Downloading update...";
-    in-out property <string> current_version: "0.2.1";
-    in-out property <string> latest_version: "0.2.1";
+    in-out property <string> current_version: AppInfo.version;
+    in-out property <string> latest_version: AppInfo.version;
     in-out property <string> release_notes: "";
     in-out property <string> release_url: "https://github.com/Mazafard/ap-dl/releases/latest";
     in-out property <bool> show_toast: false;

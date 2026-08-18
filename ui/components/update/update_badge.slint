@@ -1,8 +1,9 @@
 import { Theme } from "../../theme.slint";
+import { AppInfo } from "../../models.slint";
 
 export component UpdateBadge inherits Rectangle {
-    in property <string> current_version: "0.1.2";
-    in property <string> latest_version: "0.2.0";
+    in property <string> current_version: AppInfo.version;
+    in property <string> latest_version: AppInfo.version;
 
     height: 36px;
     border-radius: 18px;

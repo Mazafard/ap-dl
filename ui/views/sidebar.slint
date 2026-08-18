@@ -1,4 +1,5 @@
 import { Theme } from "../theme.slint";
+import { AppInfo } from "../models.slint";
 import { GlassCard } from "../components/glass_card.slint";
 import { GlassButton } from "../components/glass_button.slint";
 import { SidebarBrand } from "sidebar/sidebar_brand.slint";
@@ -9,7 +10,7 @@ export component SidebarView inherits VerticalLayout {
     in-out property <string> collection_title: "No media loaded";
     in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
     in-out property <string> destination_path: "~/Downloads";
-    in-out property <string> app_version: "v0.1.2";
+    in-out property <string> app_version: "v" + AppInfo.version;
     
     callback open_add_modal();
     callback browse_path();

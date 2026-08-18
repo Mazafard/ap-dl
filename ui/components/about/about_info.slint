@@ -1,7 +1,8 @@
 import { Theme } from "../../theme.slint";
+import { AppInfo } from "../../models.slint";
 
 export component AboutInfo inherits VerticalLayout {
-    in property <string> app_version: "v0.2.1";
+    in property <string> app_version: "v" + AppInfo.version;
 
     alignment: center;
     spacing: 8px;
@@ -32,32 +33,32 @@ export component AboutInfo inherits VerticalLayout {
         spacing: 3px;
 
         HorizontalLayout {
-            spacing: 6px;
             alignment: center;
+            spacing: 6px;
 
             Text {
-                text: "APDL";
-                font-size: 20px;
+                text: "APDL — Aparat Downloader";
+                font-size: 15px;
                 font-weight: 800;
-                color: #FFFFFF;
-                vertical-alignment: center;
+                color: Theme.text_primary;
+                horizontal-alignment: center;
             }
 
             Rectangle {
-                height: 18px;
+                height: 14px;
                 border-radius: 4px;
-                background: #f43f5e22;
+                background: #f43f5e1a;
                 border-width: 1px;
                 border-color: #f43f5e44;
 
                 HorizontalLayout {
-                    padding-left: 6px;
-                    padding-right: 6px;
+                    padding-left: 5px;
+                    padding-right: 5px;
                     alignment: center;
 
                     Text {
                         text: root.app_version;
-                        font-size: 11px;
+                        font-size: 9px;
                         font-weight: 700;
                         color: #f43f5e;
                         vertical-alignment: center;
@@ -67,17 +68,17 @@ export component AboutInfo inherits VerticalLayout {
         }
 
         Text {
-            text: "High-Performance Aparat Downloader";
-            font-size: 12px;
-            font-weight: 500;
-            color: Theme.text_muted;
+            text: "Designed & Developed by " + AppInfo.author;
+            font-size: 11px;
+            font-weight: 600;
+            color: Theme.cyan_accent;
             horizontal-alignment: center;
         }
 
         Text {
-            text: "Developed by Mohammadreza A. Fard (@Mazafard)";
-            font-size: 11px;
-            color: Theme.text_subtle;
+            text: "Fast, Resumable & Multi-Segment Video Stream Engine";
+            font-size: 10px;
+            color: Theme.text_muted;
             horizontal-alignment: center;
         }
     }

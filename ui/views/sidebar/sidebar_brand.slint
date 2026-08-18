@@ -1,7 +1,8 @@
 import { Theme } from "../../theme.slint";
+import { AppInfo } from "../../models.slint";
 
 export component SidebarBrand inherits HorizontalLayout {
-    in property <string> app_version: "v0.1.2";
+    in property <string> app_version: "v" + AppInfo.version;
 
     spacing: 10px;
     alignment: start;
@@ -27,7 +28,7 @@ export component SidebarBrand inherits HorizontalLayout {
             alignment: start;
 
             Text {
-                text: "APDL";
+                text: AppInfo.app_name;
                 font-size: 16px;
                 font-weight: 800;
                 color: Theme.text_primary;

@@ -18,6 +18,10 @@ slint::include_modules!();
 pub fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     logger::init();
     let app = AppWindow::new()?;
+    
+    let pkg_version = env!("CARGO_PKG_VERSION");
+    app.set_current_version(pkg_version.into());
+    app.global::<AppInfo>().set_version(pkg_version.into());
     app.set_is_macos(cfg!(target_os = "macos"));
 
     #[cfg(target_os = "macos")]
