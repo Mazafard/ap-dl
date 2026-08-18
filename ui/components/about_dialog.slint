@@ -1,0 +1,77 @@
+import { Theme } from "../theme.slint";
+import { GlassButton } from "glass_button.slint";
+import { AboutInfo } from "about/about_info.slint";
+import { AboutLinks } from "about/about_links.slint";
+import { AboutDisclaimer } from "about/about_disclaimer.slint";
+
+export component AboutDialog inherits Rectangle {
+    in property <bool> is_visible: false;
+    in property <string> app_version: "v0.1.2";
+    callback check_updates();
+    callback open_repo();
+    callback open_issues();
+    callback open_docs();
+    callback dismiss();
+
+    opacity: root.is_visible ? 1.0 : 0.0;
+    visible: root.opacity > 0.01;
+
+    animate opacity {
+        duration: 250ms;
+        easing: ease-in-out;
+    }
+
+    background: #000000.transparentize(40%);
+
+    TouchArea {
+        // Prevent click through
+    }
+
+    Rectangle {
+        width: 460px;
+        height: 380px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 16px;
+        background: @linear-gradient(150deg, #1E2330FA, #11141DF8);
+        border-width: 1px;
+        border-color: #FFFFFF.transparentize(80%);
+        drop-shadow-blur: 32px;
+        drop-shadow-color: #000000.transparentize(30%);
+
+        VerticalLayout {
+            padding: 24px;
+            spacing: 14px;
+            alignment: space-between;
+
+            AboutInfo {
+                app_version: root.app_version;
+            }
+
+            AboutLinks {
+                open_repo => { root.open_repo(); }
+                open_issues => { root.open_issues(); }
+                open_docs => { root.open_docs(); }
+            }
+
+            AboutDisclaimer {}
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                GlassButton {
+                    text: "Check for Updates...";
+                    height: 32px;
+                    clicked => { root.check_updates(); }
+                }
+
+                GlassButton {
+                    text: "Close";
+                    primary: true;
+                    height: 32px;
+                    clicked => { root.dismiss(); }
+                }
+            }
+        }
+    }
+}

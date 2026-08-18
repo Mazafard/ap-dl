@@ -1,0 +1,29 @@
+import { Theme } from "../../theme.slint";
+import { GlassButton } from "../glass_button.slint";
+
+export component AboutLinks inherits HorizontalLayout {
+    callback open_repo();
+    callback open_issues();
+    callback open_docs();
+
+    spacing: 8px;
+    alignment: center;
+
+    GlassButton {
+        text: "GitHub ↗";
+        height: 28px;
+        clicked => { root.open_repo(); }
+    }
+
+    GlassButton {
+        text: "Report Issue ↗";
+        height: 28px;
+        clicked => { root.open_issues(); }
+    }
+
+    GlassButton {
+        text: "Docs ↗";
+        height: 28px;
+        clicked => { root.open_docs(); }
+    }
+}

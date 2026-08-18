@@ -1,0 +1,84 @@
+import { Theme } from "../../theme.slint";
+
+export component AboutInfo inherits VerticalLayout {
+    in property <string> app_version: "v0.2.0";
+
+    alignment: center;
+    spacing: 8px;
+
+    HorizontalLayout {
+        alignment: center;
+
+        Rectangle {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: @linear-gradient(135deg, Theme.primary.transparentize(60%), Theme.cyan_accent.transparentize(70%));
+            drop-shadow-blur: 16px;
+            drop-shadow-color: Theme.primary.transparentize(50%);
+
+            Image {
+                source: @image-url("../../../assets/icon.png");
+                width: 60px;
+                height: 60px;
+                x: 2px;
+                y: 2px;
+            }
+        }
+    }
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 3px;
+
+        HorizontalLayout {
+            spacing: 6px;
+            alignment: center;
+
+            Text {
+                text: "APDL";
+                font-size: 20px;
+                font-weight: 800;
+                color: #FFFFFF;
+                vertical-alignment: center;
+            }
+
+            Rectangle {
+                height: 18px;
+                border-radius: 4px;
+                background: #f43f5e22;
+                border-width: 1px;
+                border-color: #f43f5e44;
+
+                HorizontalLayout {
+                    padding-left: 6px;
+                    padding-right: 6px;
+                    alignment: center;
+
+                    Text {
+                        text: root.app_version;
+                        font-size: 11px;
+                        font-weight: 700;
+                        color: #f43f5e;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        Text {
+            text: "High-Performance Aparat Downloader";
+            font-size: 12px;
+            font-weight: 500;
+            color: Theme.text_muted;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: "Developed by Mohammadreza A. Fard (@Mazafard)";
+            font-size: 11px;
+            color: Theme.text_subtle;
+            horizontal-alignment: center;
+        }
+    }
+}
