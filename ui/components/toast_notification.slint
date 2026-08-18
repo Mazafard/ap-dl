@@ -1,0 +1,76 @@
+import { Theme } from "../theme.slint";
+import { CloseIcon } from "icons/close_icon.slint";
+
+export component ToastNotification inherits Rectangle {
+    in property <bool> is_visible: false;
+    in property <string> message: "You're on the latest version!";
+    callback dismiss();
+
+    width: 380px;
+    height: 44px;
+    border-radius: 22px;
+    background: @linear-gradient(135deg, #1E2330FA, #0F172AFA);
+    border-width: 1px;
+    border-color: #38BDF8.transparentize(60%);
+    drop-shadow-blur: 18px;
+    drop-shadow-color: #000000.transparentize(40%);
+
+    opacity: root.is_visible ? 1.0 : 0.0;
+    visible: root.opacity > 0.01;
+
+    animate opacity {
+        duration: 250ms;
+        easing: ease-in-out;
+    }
+
+    HorizontalLayout {
+        padding-left: 18px;
+        padding-right: 12px;
+        spacing: 10px;
+        alignment: space-between;
+
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+
+            Text {
+                text: "✨";
+                font-size: 14px;
+                vertical-alignment: center;
+            }
+
+            Text {
+                text: root.message;
+                color: #F8FAFC;
+                font-size: 13px;
+                font-weight: 500;
+                vertical-alignment: center;
+            }
+        }
+
+        VerticalLayout {
+            alignment: center;
+
+            Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: touch.has-hover ? #FFFFFF.transparentize(85%) : #00000000;
+
+                animate background { duration: 150ms; }
+
+                touch := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.dismiss(); }
+                }
+
+                CloseIcon {
+                    icon_size: 10px;
+                    icon_color: touch.has-hover ? #FFFFFF : #94A3B8;
+                    x: (parent.width - self.width) / 2;
+                    y: (parent.height - self.height) / 2;
+                }
+            }
+        }
+    }
+}

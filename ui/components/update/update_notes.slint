@@ -1,0 +1,26 @@
+import { Theme } from "../../theme.slint";
+
+export component UpdateNotes inherits Rectangle {
+    in property <string> release_notes: "A new version of APDL is available with bug fixes and performance improvements.";
+
+    height: 110px;
+    border-radius: 10px;
+    background: #000000.transparentize(60%);
+    border-width: 1px;
+    border-color: #FFFFFF.transparentize(90%);
+    clip: true;
+
+    Flickable {
+        viewport-height: notes_text.min-height + 24px;
+
+        notes_text := Text {
+            x: 12px;
+            y: 12px;
+            width: parent.width - 24px;
+            text: root.release_notes;
+            color: #CBD5E1;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+    }
+}

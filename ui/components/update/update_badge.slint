@@ -1,0 +1,43 @@
+import { Theme } from "../../theme.slint";
+
+export component UpdateBadge inherits Rectangle {
+    in property <string> current_version: "0.1.2";
+    in property <string> latest_version: "0.2.0";
+
+    height: 36px;
+    border-radius: 18px;
+    background: @linear-gradient(135deg, Theme.primary.transparentize(80%), Theme.cyan_accent.transparentize(80%));
+    border-width: 1px;
+    border-color: Theme.primary.transparentize(60%);
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 8px;
+        alignment: center;
+
+        Text {
+            text: "v" + root.current_version;
+            color: #94A3B8;
+            font-size: 13px;
+            font-weight: 500;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: "→";
+            color: #38BDF8;
+            font-size: 14px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: "v" + root.latest_version;
+            color: #38BDF8;
+            font-size: 13px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+    }
+}

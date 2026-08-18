@@ -1,0 +1,80 @@
+import { Theme } from "../theme.slint";
+import { UpdateBadge } from "update/update_badge.slint";
+import { UpdateNotes } from "update/update_notes.slint";
+import { UpdateActions } from "update/update_actions.slint";
+
+export component UpdateDialog inherits Rectangle {
+    in property <bool> is_visible: false;
+    in property <string> current_version: "0.1.2";
+    in property <string> latest_version: "0.2.0";
+    in property <string> release_notes: "";
+    callback download_update();
+    callback dismiss();
+
+    opacity: root.is_visible ? 1.0 : 0.0;
+    visible: root.opacity > 0.01;
+
+    animate opacity {
+        duration: 250ms;
+        easing: ease-in-out;
+    }
+
+    // Modal Scrim Backdrop
+    background: #000000.transparentize(40%);
+
+    TouchArea {
+        // Prevent click-through
+    }
+
+    // Centered Glass Modal Dialog
+    Rectangle {
+        width: 440px;
+        height: 340px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 16px;
+        background: @linear-gradient(150deg, #1E2330F0, #11141DF5);
+        border-width: 1px;
+        border-color: #FFFFFF.transparentize(80%);
+        drop-shadow-blur: 32px;
+        drop-shadow-color: #000000.transparentize(30%);
+
+        VerticalLayout {
+            padding: 24px;
+            spacing: 16px;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                Text {
+                    text: "🎉 Update Available";
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #FFFFFF;
+                    vertical-alignment: center;
+                }
+
+                UpdateBadge {
+                    current_version: root.current_version;
+                    latest_version: root.latest_version;
+                }
+            }
+
+            Text {
+                text: "A new version of APDL is available on GitHub with enhancements and fixes.";
+                font-size: 13px;
+                color: #94A3B8;
+                wrap: word-wrap;
+            }
+
+            UpdateNotes {
+                release_notes: root.release_notes;
+            }
+
+            UpdateActions {
+                download_clicked => { root.download_update(); }
+                dismiss_clicked => { root.dismiss(); }
+            }
+        }
+    }
+}

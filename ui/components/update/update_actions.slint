@@ -1,0 +1,23 @@
+import { Theme } from "../../theme.slint";
+import { GlassButton } from "../glass_button.slint";
+
+export component UpdateActions inherits HorizontalLayout {
+    in property <bool> is_updating: false;
+    callback download_clicked();
+    callback dismiss_clicked();
+
+    spacing: 12px;
+    alignment: end;
+
+    GlassButton {
+        text: "Later";
+        primary: false;
+        clicked => { root.dismiss_clicked(); }
+    }
+
+    GlassButton {
+        text: "Download Update ↗";
+        primary: true;
+        clicked => { root.download_clicked(); }
+    }
+}
