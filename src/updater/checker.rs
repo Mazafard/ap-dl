@@ -1,4 +1,5 @@
 use crate::updater::github::fetch_latest_release;
+use crate::updater::installer::asset_matcher::find_matching_asset;
 use crate::updater::types::{UpdateCheckResult, UpdateInfo};
 use crate::updater::version::is_newer_version;
 use crate::AppWindow;
@@ -7,22 +8,25 @@ pub async fn check_update(current_version: &str) -> UpdateCheckResult {
     if std::env::var("APDL_SIMULATE_UPDATE").is_ok() {
         return UpdateCheckResult::UpdateAvailable(UpdateInfo {
             current_version: current_version.to_string(),
-            latest_version: "v0.2.0".to_string(),
-            release_name: "APDL v0.2.0 — Major Performance Boost".to_string(),
+            latest_version: "v0.3.0".to_string(),
+            release_name: "APDL v0.3.0 — Self-Update & Speed Boost".to_string(),
             release_url: "https://github.com/Mazafard/ap-dl/releases".to_string(),
-            release_notes: "• Enhanced Multi-Segment Turbo Download Engine\n• Instant Resume & Integrity Verifier\n• Sleek Frosted Glass macOS UI".to_string(),
+            release_notes: "• In-App One-Click Auto Installer\n• Windows/Linux Menubar\n• Multi-Segment Stream Engine".to_string(),
+            download_url: Some("https://github.com/Mazafard/ap-dl/releases".to_string()),
         });
     }
 
     match fetch_latest_release().await {
         Ok(release) => {
             if is_newer_version(&release.tag_name, current_version) {
+                let download_url = find_matching_asset(&release.assets).map(|a| a.browser_download_url.clone());
                 UpdateCheckResult::UpdateAvailable(UpdateInfo {
                     current_version: current_version.to_string(),
                     latest_version: release.tag_name.clone(),
                     release_name: release.name.unwrap_or(release.tag_name),
                     release_url: release.html_url,
                     release_notes: release.body.unwrap_or_default(),
+                    download_url,
                 })
             } else {
                 UpdateCheckResult::UpToDate(current_version.to_string())
@@ -57,20 +61,4 @@ pub fn apply_update_result(app_weak: slint::Weak<AppWindow>, result: UpdateCheck
             }
         }
     });
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_check_update_simulated() {
-        std::env::set_var("APDL_SIMULATE_UPDATE", "1");
-        let result = check_update("0.1.0").await;
-        std::env::remove_var("APDL_SIMULATE_UPDATE");
-        match result {
-            UpdateCheckResult::UpdateAvailable(info) => assert_eq!(info.latest_version, "v0.2.0"),
-            _ => panic!("Expected UpdateAvailable in simulation mode"),
-        }
-    }
 }

@@ -1,0 +1,35 @@
+import { Theme } from "../../theme.slint";
+
+export component UpdateProgressTrack inherits VerticalLayout {
+    in property <float> progress: 0.0;
+    in property <string> status_text: "Downloading update...";
+
+    spacing: 8px;
+
+    Text {
+        text: root.status_text;
+        font-size: 12px;
+        font-weight: 500;
+        color: #F1F5F9;
+        horizontal-alignment: center;
+    }
+
+    Rectangle {
+        height: 6px;
+        border-radius: 3px;
+        background: #ffffff14;
+        clip: true;
+
+        Rectangle {
+            width: parent.width * Math.max(0.02, Math.min(1.0, root.progress));
+            height: 100%;
+            border-radius: 3px;
+            background: @linear-gradient(90deg, #f43f5e, #fb7185, #38bdf8);
+
+            animate width {
+                duration: 150ms;
+                easing: ease-out;
+            }
+        }
+    }
+}

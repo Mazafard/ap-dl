@@ -2,77 +2,82 @@ import { Theme } from "../theme.slint";
 import { UpdateBadge } from "update/update_badge.slint";
 import { UpdateNotes } from "update/update_notes.slint";
 import { UpdateActions } from "update/update_actions.slint";
+import { UpdateProgressTrack } from "update/update_progress.slint";
 
 export component UpdateDialog inherits Rectangle {
     in property <bool> is_visible: false;
-    in property <string> current_version: "0.1.2";
-    in property <string> latest_version: "0.2.0";
+    in property <string> current_version: "0.2.0";
+    in property <string> latest_version: "0.2.1";
     in property <string> release_notes: "";
-    callback download_update();
+    in property <bool> is_installing: false;
+    in property <float> install_progress: 0.0;
+    in property <string> install_status: "Downloading update...";
+    callback install_update();
+    callback browser_update();
     callback dismiss();
 
     opacity: root.is_visible ? 1.0 : 0.0;
     visible: root.opacity > 0.01;
 
-    animate opacity {
-        duration: 250ms;
-        easing: ease-in-out;
-    }
+    animate opacity { duration: 250ms; easing: ease-in-out; }
 
-    // Modal Scrim Backdrop
-    background: #000000.transparentize(40%);
+    background: #000000.transparentize(30%);
+    TouchArea {}
 
-    TouchArea {
-        // Prevent click-through
-    }
-
-    // Centered Glass Modal Dialog
     Rectangle {
-        width: 440px;
-        height: 340px;
+        width: 450px;
+        height: root.is_installing ? 280px : 340px;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         border-radius: 16px;
-        background: @linear-gradient(150deg, #1E2330F0, #11141DF5);
+        background: @linear-gradient(150deg, #1E2330F8, #11141DFB);
         border-width: 1px;
         border-color: #FFFFFF.transparentize(80%);
         drop-shadow-blur: 32px;
-        drop-shadow-color: #000000.transparentize(30%);
+        drop-shadow-color: #000000.transparentize(25%);
+
+        animate height { duration: 200ms; }
 
         VerticalLayout {
             padding: 24px;
-            spacing: 16px;
+            spacing: 14px;
+            alignment: space-between;
 
             HorizontalLayout {
                 alignment: space-between;
-
                 Text {
-                    text: "🎉 Update Available";
-                    font-size: 18px;
+                    text: root.is_installing ? "⚡ Installing Update" : "🎉 Update Available";
+                    font-size: 17px;
                     font-weight: 700;
                     color: #FFFFFF;
                     vertical-alignment: center;
                 }
-
                 UpdateBadge {
                     current_version: root.current_version;
                     latest_version: root.latest_version;
                 }
             }
 
-            Text {
-                text: "A new version of APDL is available on GitHub with enhancements and fixes.";
-                font-size: 13px;
+            if !root.is_installing : Text {
+                text: "A new version of APDL is available with performance boosts and features.";
+                font-size: 12px;
                 color: #94A3B8;
                 wrap: word-wrap;
             }
 
-            UpdateNotes {
+            if !root.is_installing : UpdateNotes {
                 release_notes: root.release_notes;
             }
 
+            if root.is_installing : UpdateProgressTrack {
+                progress: root.install_progress;
+                status_text: root.install_status;
+            }
+
             UpdateActions {
-                download_clicked => { root.download_update(); }
+                is_installing: root.is_installing;
+                install_clicked => { root.install_update(); }
+                browser_clicked => { root.browser_update(); }
                 dismiss_clicked => { root.dismiss(); }
             }
         }

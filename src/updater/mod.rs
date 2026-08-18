@@ -1,5 +1,6 @@
 pub mod checker;
 pub mod github;
+pub mod installer;
 pub mod types;
 pub mod version;
 
