@@ -40,9 +40,16 @@ export component ChangelogDialog inherits Rectangle {
                     padding-right: 6px;
 
                     ChangelogVersionCard {
-                        version_tag: "v0.3.0";
+                        version_tag: "v0.3.1";
                         release_date: "Latest Release";
                         is_latest: true;
+                        highlights: "• Dynamic 1-Click Platform Downloads in README for macOS, Windows & Linux\n• Live GitHub CHANGELOG.md Fetcher for in-app update modals\n• Canonical Release Asset Aliasing across CI/CD workflows\n• Native multi-platform target asset matcher polish";
+                    }
+
+                    ChangelogVersionCard {
+                        version_tag: "v0.3.0";
+                        release_date: "August 2026";
+                        is_latest: false;
                         highlights: "• In-App One-Click Auto Installer & Atomic Binary Replacement\n• In-Window Frosted Glass Menubar for Windows & Linux\n• Windows Console Suppression & Embedded Taskbar Icon (.ico)\n• Linux Freedesktop .desktop Launcher & Installer Script\n• Centralized Singleton Version Management Architecture";
                     }
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] - 2026-08-18
+
+### Added
+- **Dynamic Platform Downloads**: Direct 1-click download badges in README for macOS Apple Silicon, Windows x64, and Linux x64 with zero hardcoded URLs.
+- **Live GitHub CHANGELOG.md Fetcher**: Automatically pulls real-time release highlights directly from the repository for in-app update modals.
+- **Canonical Release Asset Aliasing**: CI/CD pipeline generates both versioned and canonical platform binaries for seamless updater resolution.
+
+---
+
 ## [0.3.0] - 2026-08-18
 
 ### Added
@@ -33,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-08-17
 
 ### Added
-- **Single Video Downloader**: Video resolution picker (1080p, 720p, 480p, 360p, 240p, 144p) with metadata inspection.
+- **Single Video Downloader**: Video resolution picker (1080p down to 144p) with metadata inspection.
 - **Playlist Batch Extractor**: Automatic playlist expansion into batch queue.
 - **Turbo Multi-Segment Downloader**: Parallel chunk streaming with HTTP `Range` requests and auto-resume.
 - **Intelligent CDN Failover**: Edge mirror routing across Caspian nodes.
