@@ -38,21 +38,13 @@ jobs:
             archive_ext: zip
             asset_suffix: windows-x86_64
 
-          # macOS Apple Silicon (ARM64)
-          - name: macOS ARM64
+          # macOS (Apple Silicon / ARM64)
+          - name: macOS
             os: macos-latest
             target: aarch64-apple-darwin
             binary_name: ap-dl
             archive_ext: zip
             asset_suffix: macos-arm64
-
-          # macOS Intel (x86_64)
-          - name: macOS Intel
-            os: macos-13
-            target: x86_64-apple-darwin
-            binary_name: ap-dl
-            archive_ext: zip
-            asset_suffix: macos-x86_64
 
     steps:
       - name: Checkout code
