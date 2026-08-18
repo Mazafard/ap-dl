@@ -28,7 +28,7 @@ tar = "0.4"
 objc2 = "0.5"
 objc2-foundation = { version = "0.2", features = ["NSData", "NSArray", "NSString"] }
 objc2-app-kit = { version = "0.2", features = ["NSApplication", "NSImage", "NSWindow", "NSView", "NSColor", "NSVisualEffectView", "NSMenu", "NSMenuItem"] }
-window-vibrancy = "0.5"
+window-vibrancy = "0.8"
 raw-window-handle = "0.6"
 
 [build-dependencies]
