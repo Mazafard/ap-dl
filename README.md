@@ -6,8 +6,8 @@
 [![Rust](https://img.shields.io/badge/Rust-1.80+_(2021)-orange.svg?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Slint UI](https://img.shields.io/badge/GUI-Slint_1.9-00bcd4.svg?logo=slint&logoColor=white)](https://slint.dev/)
 [![Async Runtime](https://img.shields.io/badge/Async-Tokio-blueviolet.svg?logo=tokio&logoColor=white)](https://tokio.rs/)
-[![Tests](https://img.shields.io/badge/tests-21%20passed-success.svg?logo=rust&logoColor=white)](https://github.com/Mazafard/ap-dl/actions)
-[![Core Engine Coverage](https://img.shields.io/badge/core%20engine%20coverage-90%25+-brightgreen.svg?logo=codecov)](https://github.com/Mazafard/ap-dl)
+[![CI](https://github.com/Mazafard/ap-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/Mazafard/ap-dl/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/Mazafard/ap-dl/branch/main/graph/badge.svg)](https://codecov.io/gh/Mazafard/ap-dl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
