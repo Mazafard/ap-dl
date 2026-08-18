@@ -34,13 +34,14 @@ A fast, async desktop application built in **Rust** using **Slint UI** and **Tok
 
 - **Single Video Downloader**: Paste any Aparat video link (e.g., `https://www.aparat.com/v/XXXXX`), inspect metadata (title, duration, channel), and pick your desired quality (1080p, 720p, 480p, 360p, 240p, 144p).
 - **Playlist Extractor**: Paste a playlist link (e.g., `https://www.aparat.com/playlist/XXXXX`) to automatically load all videos into the batch queue.
+- **In-App Auto Updater & One-Click Installer**: Automatically checks GitHub Releases, streams update archives with live progress, performs atomic binary replacement (`self-replace`), and restarts into the new version.
 - **Resumable Chunk Streaming**: Uses HTTP `Range` requests to automatically resume dropped or interrupted downloads from where they left off.
 - **Intelligent CDN Failover**: Seamlessly fails over across high-availability CDN edge mirrors if a local node times out.
-- **In-App Auto Update Checker**: Background and on-demand checking against the GitHub Releases API with SemVer comparisons and release note previews.
+- **Cross-Platform Native Menu Bars**: Native AppKit top system menubar on macOS; sleek in-window frosted glass menubar on Windows & Linux.
+- **Native Platform Polish**: Embedded taskbar `.ico` and console suppression on Windows; Freedesktop `.desktop` launcher and desktop icon on Linux.
 - **Frosted Glass Startup Experience**: Smooth startup splash screen with glowing APDL branding, progressive loader track, and initialization status.
 - **Custom "About APDL" Modal**: Beautiful frosted glass dialog showing author credits, project links (GitHub, Bug Tracker, Docs), and legal disclaimer.
 - **Real-Time Progress Tracking**: Live speed (MB/s), downloaded bytes, and percentage progress bars.
-- **Native macOS Menu Bar**: Full system integration with custom keyboard shortcuts (`⌘+N`, `⌘+O`, `⌘+H`, `⌘+Q`).
 
 ---
 
@@ -57,8 +58,7 @@ A comprehensive [`Makefile`](file:///Volumes/CrucialX9/ap-dl/Makefile) is provid
 | **`make dmg`** | Build signed and notarized **`APDL.dmg`** disk image |
 | **`make test`** | Run all unit tests and live Aparat API integration tests |
 | **`make check`** | Fast compiler syntax and type checking |
-| **`make tag VERSION=0.2.0`** | Create and push a git release tag (`v0.2.0`) to trigger GitHub Actions |
-| **`make release VERSION=0.2.0`** | Bump version in `Cargo.toml`, commit, tag, and trigger multi-platform CI/CD |
+| **`make release VERSION=0.3.0`** | Central version bump, commit, tag, and trigger multi-platform CI/CD in 1 step |
 | **`make clean`** | Clean cargo build artifacts and temporary download files |
 
 ---
