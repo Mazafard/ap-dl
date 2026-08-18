@@ -1,5 +1,17 @@
 # APDL — Aparat Downloader (`ap-dl`)
 
+<div align="center">
+
+[![Release](https://img.shields.io/github/v/release/Mazafard/ap-dl?color=f43f5e&logo=github&label=Release)](https://github.com/Mazafard/ap-dl/releases)
+[![Rust](https://img.shields.io/badge/Rust-1.80+_(2021)-orange.svg?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Slint UI](https://img.shields.io/badge/GUI-Slint_1.9-00bcd4.svg?logo=slint&logoColor=white)](https://slint.dev/)
+[![Async Runtime](https://img.shields.io/badge/Async-Tokio-blueviolet.svg?logo=tokio&logoColor=white)](https://tokio.rs/)
+[![Tests](https://img.shields.io/badge/tests-21%20passed-success.svg?logo=rust&logoColor=white)](https://github.com/Mazafard/ap-dl/actions)
+[![Core Engine Coverage](https://img.shields.io/badge/core%20engine%20coverage-90%25+-brightgreen.svg?logo=codecov)](https://github.com/Mazafard/ap-dl)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
+
 A fast, async desktop application built in **Rust** using **Slint UI** and **Tokio** to download videos and playlists from [Aparat](https://www.aparat.com) with quality selection, multi-segment downloading, and real-time progress indicators.
 
 <div align="center">
