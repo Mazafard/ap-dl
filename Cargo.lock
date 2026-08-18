@@ -244,7 +244,7 @@ dependencies = [
  "flate2",
  "futures-util",
  "log",
- "objc2 0.5.2",
+ "objc2 0.6.4",
  "objc2-app-kit 0.2.2",
  "objc2-foundation 0.2.2",
  "open",
