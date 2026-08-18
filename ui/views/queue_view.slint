@@ -1,8 +1,11 @@
 import { Theme } from "../theme.slint";
 import { MediaItem } from "../models.slint";
 import { GlassCard } from "../components/glass_card.slint";
-import { GlassButton } from "../components/glass_button.slint";
 import { GlassScrollView } from "../components/glass_scroll_view.slint";
+import { QueueToolbar } from "queue/queue_toolbar.slint";
+import { QueueEmptyState } from "queue/queue_empty_state.slint";
+import { QueueItemRow } from "queue/queue_item_row.slint";
+import { QueueFooter } from "queue/queue_footer.slint";
 
 export component QueueView inherits VerticalLayout {
     in-out property <[MediaItem]> media_items: [];
@@ -18,282 +21,36 @@ export component QueueView inherits VerticalLayout {
     horizontal-stretch: 1;
     spacing: 12px;
 
-    // Queue Toolbar
-    GlassCard {
-        height: 52px;
-        HorizontalLayout {
-            padding-left: 16px;
-            padding-right: 16px;
-            alignment: space-between;
-
-            HorizontalLayout {
-                alignment: start;
-                
-                Text {
-                    text: "Queue Items (" + root.media_items.length + ")";
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: Theme.text_primary;
-                    vertical-alignment: center;
-                }
-            }
-
-            HorizontalLayout {
-                spacing: 8px;
-                alignment: end;
-
-                GlassButton {
-                    text: "+ Add Link";
-                    primary: true;
-                    height: 32px;
-                    y: (parent.height - self.height) / 2;
-                    clicked => { root.open_add_modal(); }
-                }
-
-                Rectangle {
-                    width: 1px;
-                    height: 18px;
-                    background: Theme.card_border;
-                    y: (parent.height - self.height) / 2;
-                }
-
-                GlassButton {
-                    text: "Select All";
-                    enabled: root.media_items.length > 0;
-                    height: 32px;
-                    y: (parent.height - self.height) / 2;
-                    clicked => { root.toggle_select_all(true); }
-                }
-
-                GlassButton {
-                    text: "Deselect All";
-                    enabled: root.media_items.length > 0;
-                    height: 32px;
-                    y: (parent.height - self.height) / 2;
-                    clicked => { root.toggle_select_all(false); }
-                }
-            }
-        }
+    QueueToolbar {
+        item_count: root.media_items.length;
+        open_add_modal => { root.open_add_modal(); }
+        select_all => { root.toggle_select_all(true); }
+        deselect_all => { root.toggle_select_all(false); }
     }
 
-    // Media Stream List
     GlassCard {
         vertical-stretch: 1;
 
-        if root.media_items.length == 0 : VerticalLayout {
-            alignment: center;
-            spacing: 10px;
-
-            Text {
-                text: "↓";
-                font-size: 32px;
-                color: #475569;
-                horizontal-alignment: center;
-            }
-            Text {
-                text: "No items in queue";
-                font-size: 14px;
-                font-weight: 600;
-                color: Theme.text_muted;
-                horizontal-alignment: center;
-            }
-            Text {
-                text: "Click '+ Add Stream / Playlist' to enter an Aparat link";
-                font-size: 11px;
-                color: Theme.text_subtle;
-                horizontal-alignment: center;
-            }
-        }
+        if root.media_items.length == 0 : QueueEmptyState {}
 
         if root.media_items.length > 0 : GlassScrollView {
             VerticalLayout {
                 spacing: 6px;
                 padding: 10px;
 
-                for item[idx] in root.media_items: Rectangle {
-                    height: 58px;
-                    background: Theme.card_item_bg;
-                    border-radius: Theme.radius_md;
-                    border-width: 1px;
-                    border-color: item.status_code == 1 ? #f43f5e55 : Theme.card_item_border;
-
-                    HorizontalLayout {
-                        padding-left: 12px;
-                        padding-right: 12px;
-                        spacing: 12px;
-                        alignment: space-between;
-
-                        // Selection Checkbox Area
-                        Rectangle {
-                            width: 24px;
-                            TouchArea {
-                                clicked => { root.toggle_item(idx); }
-                            }
-                            Rectangle {
-                                width: 18px;
-                                height: 18px;
-                                border-radius: 4px;
-                                background: item.selected ? Theme.primary_pressed : #ffffff0e;
-                                border-width: 1px;
-                                border-color: item.selected ? Theme.primary : #ffffff24;
-                                y: (parent.height - self.height) / 2;
-
-                                Text {
-                                    text: item.selected ? "✓" : "";
-                                    color: Theme.text_primary;
-                                    font-size: 11px;
-                                    font-weight: 800;
-                                    vertical-alignment: center;
-                                    horizontal-alignment: center;
-                                }
-                            }
-                        }
-
-                        // Index Badge
-                        Text {
-                            text: item.index_label;
-                            font-size: 11px;
-                            font-weight: 700;
-                            color: Theme.text_subtle;
-                            vertical-alignment: center;
-                            width: 22px;
-                        }
-
-                        // Media Title & Progress Info
-                        VerticalLayout {
-                            horizontal-stretch: 1;
-                            alignment: center;
-                            spacing: 4px;
-
-                            Text {
-                                text: item.title;
-                                font-size: 13px;
-                                font-weight: 600;
-                                color: Theme.text_primary;
-                                overflow: elide;
-                            }
-
-                            HorizontalLayout {
-                                spacing: 12px;
-                                Text {
-                                    text: item.speed_text;
-                                    font-size: 11px;
-                                    color: item.status_code == 1 ? Theme.primary : (item.status_code == 3 ? Theme.danger : Theme.text_muted);
-                                    overflow: elide;
-                                    max-width: 140px;
-                                }
-                                Text {
-                                    text: item.file_size;
-                                    font-size: 11px;
-                                    color: Theme.text_subtle;
-                                    overflow: elide;
-                                }
-                            }
-                        }
-
-                        // Quality Pill Badge
-                        Rectangle {
-                            width: 64px;
-                            height: 22px;
-                            border-radius: 4px;
-                            background: Theme.cyan_badge_bg;
-                            border-width: 1px;
-                            border-color: Theme.cyan_badge_border;
-                            y: (parent.height - self.height) / 2;
-
-                            Text {
-                                text: item.resolution;
-                                font-size: 10px;
-                                font-weight: 700;
-                                color: Theme.cyan_accent;
-                                vertical-alignment: center;
-                                horizontal-alignment: center;
-                            }
-                        }
-
-                        // Progress Bar Container
-                        Rectangle {
-                            width: 140px;
-                            height: 6px;
-                            background: #ffffff14;
-                            border-radius: 3px;
-                            clip: true;
-                            y: (parent.height - self.height) / 2;
-
-                            Rectangle {
-                                width: parent.width * Math.min(1.0, Math.max(0.0, item.progress));
-                                height: parent.height;
-                                background: item.status_code == 2 ? Theme.success : (item.status_code == 3 ? Theme.danger : Theme.primary);
-                                border-radius: 3px;
-                                x: 0;
-                            }
-                        }
-                    }
+                for item[idx] in root.media_items: QueueItemRow {
+                    item: item;
+                    toggle => { root.toggle_item(idx); }
                 }
             }
         }
     }
 
-    // Global Execution Footer
-    GlassCard {
-        height: 58px;
-        HorizontalLayout {
-            padding-left: 18px;
-            padding-right: 18px;
-            alignment: space-between;
-
-            HorizontalLayout {
-                spacing: 10px;
-                alignment: start;
-
-                Rectangle {
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 4px;
-                    background: root.is_downloading ? Theme.primary : Theme.success;
-                    y: (parent.height - self.height) / 2;
-                }
-
-                Text {
-                    text: "Status:";
-                    font-size: 12px;
-                    font-weight: 500;
-                    color: Theme.text_subtle;
-                    vertical-alignment: center;
-                }
-
-                Text {
-                    text: root.total_speed;
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: Theme.success;
-                    vertical-alignment: center;
-                    overflow: elide;
-                }
-            }
-
-            HorizontalLayout {
-                alignment: end;
-
-                GlassButton {
-                    text: root.is_downloading ? "Pause Download" : "Start Download";
-                    icon: root.is_downloading ? @image-url("../../assets/pause.svg") : @image-url("../../assets/play.svg");
-                    has_icon: true;
-                    primary: !root.is_downloading;
-                    danger: root.is_downloading;
-                    enabled: root.media_items.length > 0;
-                    height: 38px;
-                    y: (parent.height - self.height) / 2;
-                    clicked => {
-                        if (root.is_downloading) {
-                            root.cancel_download();
-                        } else {
-                            root.start_download();
-                        }
-                    }
-                }
-
-            }
-        }
+    QueueFooter {
+        is_downloading: root.is_downloading;
+        total_speed: root.total_speed;
+        has_items: root.media_items.length > 0;
+        start_download => { root.start_download(); }
+        cancel_download => { root.cancel_download(); }
     }
 }

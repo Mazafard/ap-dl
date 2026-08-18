@@ -1,0 +1,26 @@
+import { Theme } from "../../theme.slint";
+
+export component QueueEmptyState inherits VerticalLayout {
+    alignment: center;
+    spacing: 10px;
+
+    Text {
+        text: "↓";
+        font-size: 32px;
+        color: #475569;
+        horizontal-alignment: center;
+    }
+    Text {
+        text: "No items in queue";
+        font-size: 14px;
+        font-weight: 600;
+        color: Theme.text_muted;
+        horizontal-alignment: center;
+    }
+    Text {
+        text: "Click '+ Add Stream / Playlist' to enter an Aparat link";
+        font-size: 11px;
+        color: Theme.text_subtle;
+        horizontal-alignment: center;
+    }
+}

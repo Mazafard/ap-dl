@@ -1,0 +1,44 @@
+import { Theme } from "../../theme.slint";
+import { CloseIcon } from "../../components/icons/close_icon.slint";
+
+export component ModalHeader inherits HorizontalLayout {
+    in property <bool> is_analyzing: false;
+    callback close_modal();
+
+    alignment: space-between;
+
+    VerticalLayout {
+        spacing: 2px;
+        Text {
+            text: "Add Aparat Link";
+            font-size: 15px;
+            font-weight: 700;
+            color: Theme.text_primary;
+        }
+        Text {
+            text: "Enter a single video URL or a full playlist link";
+            font-size: 11px;
+            color: Theme.text_muted;
+        }
+    }
+
+    Rectangle {
+        width: 28px;
+        height: 28px;
+        border-radius: 14px;
+        background: close_touch.has-hover ? #ffffff22 : #ffffff14;
+
+        close_touch := TouchArea {
+            mouse-cursor: pointer;
+            enabled: !root.is_analyzing;
+            clicked => { root.close_modal(); }
+        }
+
+        CloseIcon {
+            icon_size: 11px;
+            icon_color: Theme.text_primary;
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+        }
+    }
+}

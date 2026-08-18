@@ -1,0 +1,66 @@
+import { Theme } from "../../theme.slint";
+
+export component SidebarBrand inherits HorizontalLayout {
+    in property <string> app_version: "v0.1.2";
+
+    spacing: 10px;
+    alignment: start;
+
+    Rectangle {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        clip: true;
+        Image {
+            source: @image-url("../../../assets/icon.png");
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 1px;
+
+        HorizontalLayout {
+            spacing: 5px;
+            alignment: start;
+
+            Text {
+                text: "APDL";
+                font-size: 16px;
+                font-weight: 800;
+                color: Theme.text_primary;
+                vertical-alignment: center;
+            }
+
+            Rectangle {
+                height: 13px;
+                border-radius: 3px;
+                background: #f43f5e18;
+                border-width: 1px;
+                border-color: #f43f5e33;
+
+                HorizontalLayout {
+                    padding-left: 4px;
+                    padding-right: 4px;
+                    alignment: center;
+
+                    Text {
+                        text: root.app_version;
+                        font-size: 8px;
+                        font-weight: 700;
+                        color: #f43f5e;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        Text {
+            text: "Aparat Video & Playlist Downloader";
+            font-size: 10px;
+            color: Theme.text_muted;
+        }
+    }
+}

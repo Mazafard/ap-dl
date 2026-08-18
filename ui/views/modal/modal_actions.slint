@@ -1,0 +1,27 @@
+import { Theme } from "../../theme.slint";
+import { GlassButton } from "../../components/glass_button.slint";
+
+export component ModalActions inherits HorizontalLayout {
+    in property <bool> is_analyzing: false;
+    in property <bool> has_input: false;
+    callback cancel();
+    callback submit();
+
+    alignment: end;
+    spacing: 10px;
+
+    GlassButton {
+        text: "Cancel";
+        height: 36px;
+        enabled: !root.is_analyzing;
+        clicked => { root.cancel(); }
+    }
+
+    GlassButton {
+        text: root.is_analyzing ? "Resolving Stream..." : "Fetch Media";
+        primary: true;
+        height: 36px;
+        enabled: !root.is_analyzing && root.has_input;
+        clicked => { root.submit(); }
+    }
+}

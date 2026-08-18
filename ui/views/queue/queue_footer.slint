@@ -1,0 +1,67 @@
+import { Theme } from "../../theme.slint";
+import { GlassCard } from "../../components/glass_card.slint";
+import { GlassButton } from "../../components/glass_button.slint";
+
+export component QueueFooter inherits GlassCard {
+    in property <bool> is_downloading: false;
+    in property <string> total_speed: "Ready";
+    in property <bool> has_items: false;
+    callback start_download();
+    callback cancel_download();
+
+    height: 58px;
+
+    HorizontalLayout {
+        padding-left: 18px;
+        padding-right: 18px;
+        alignment: space-between;
+
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+
+            Rectangle {
+                width: 8px;
+                height: 8px;
+                border-radius: 4px;
+                background: root.is_downloading ? Theme.primary : Theme.success;
+                y: (parent.height - self.height) / 2;
+            }
+
+            Text {
+                text: "Status:";
+                font-size: 12px;
+                font-weight: 500;
+                color: Theme.text_subtle;
+                vertical-alignment: center;
+            }
+
+            Text {
+                text: root.total_speed;
+                font-size: 12px;
+                font-weight: 700;
+                color: Theme.success;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+
+        HorizontalLayout {
+            alignment: end;
+
+            GlassButton {
+                text: root.is_downloading ? "Pause Download" : "Start Download";
+                icon: root.is_downloading ? @image-url("../../../assets/pause.svg") : @image-url("../../../assets/play.svg");
+                has_icon: true;
+                primary: !root.is_downloading;
+                danger: root.is_downloading;
+                enabled: root.has_items;
+                height: 38px;
+                y: (parent.height - self.height) / 2;
+                clicked => {
+                    if (root.is_downloading) { root.cancel_download(); } else { root.start_download(); }
+                }
+            }
+        }
+    }
+}

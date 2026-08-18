@@ -1,0 +1,37 @@
+import { Theme } from "../../theme.slint";
+import { GlassCard } from "../../components/glass_card.slint";
+
+export component SidebarCollectionCard inherits GlassCard {
+    in property <string> collection_title: "No media loaded";
+    in property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
+
+    vertical-stretch: 1;
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 8px;
+
+        Text {
+            text: "COLLECTION INFO";
+            font-size: 10px;
+            font-weight: 700;
+            color: Theme.text_muted;
+        }
+
+        Text {
+            text: root.collection_title;
+            font-size: 13px;
+            font-weight: 600;
+            color: Theme.text_primary;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: root.collection_details;
+            font-size: 11px;
+            color: Theme.text_muted;
+        }
+
+        Rectangle { vertical-stretch: 1; }
+    }
+}

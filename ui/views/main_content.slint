@@ -1,0 +1,49 @@
+import { Theme } from "../theme.slint";
+import { MediaItem } from "../models.slint";
+import { SidebarView } from "sidebar.slint";
+import { QueueView } from "queue_view.slint";
+
+export component MainContent inherits Rectangle {
+    in-out property <string> destination_path: "~/Downloads";
+    in-out property <string> collection_title: "No media loaded";
+    in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
+    in-out property <string> total_speed: "Ready";
+    in-out property <bool> is_downloading: false;
+    in-out property <[MediaItem]> media_items: [];
+
+    callback open_add_modal();
+    callback browse_path();
+    callback toggle_select_all(bool);
+    callback toggle_item(int);
+    callback start_download();
+    callback cancel_download();
+
+    background: Theme.shell_bg;
+    border-radius: Theme.radius_xl;
+    border-width: 1px;
+    border-color: Theme.shell_border;
+
+    HorizontalLayout {
+        padding: 16px;
+        spacing: 16px;
+
+        SidebarView {
+            collection_title: root.collection_title;
+            collection_details: root.collection_details;
+            destination_path: root.destination_path;
+            open_add_modal => { root.open_add_modal(); }
+            browse_path => { root.browse_path(); }
+        }
+
+        QueueView {
+            media_items: root.media_items;
+            total_speed: root.total_speed;
+            is_downloading: root.is_downloading;
+            open_add_modal => { root.open_add_modal(); }
+            toggle_select_all(state) => { root.toggle_select_all(state); }
+            toggle_item(idx) => { root.toggle_item(idx); }
+            start_download => { root.start_download(); }
+            cancel_download => { root.cancel_download(); }
+        }
+    }
+}

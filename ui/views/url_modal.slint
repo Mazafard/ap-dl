@@ -1,6 +1,7 @@
 import { Theme } from "../theme.slint";
 import { DarkGlassTextInput } from "../components/dark_text_input.slint";
-import { GlassButton } from "../components/glass_button.slint";
+import { ModalHeader } from "modal/modal_header.slint";
+import { ModalActions } from "modal/modal_actions.slint";
 
 export component UrlModalDialog inherits Rectangle {
     in-out property <string> modal_url_input <=> input_field.text;
@@ -15,16 +16,12 @@ export component UrlModalDialog inherits Rectangle {
     height: 100%;
     background: Theme.modal_backdrop;
 
-    // Dismiss on backdrop click
     TouchArea {
         clicked => {
-            if (!root.is_analyzing) {
-                root.close_modal();
-            }
+            if (!root.is_analyzing) { root.close_modal(); }
         }
     }
 
-    // Centered Glass Modal Dialog
     Rectangle {
         width: 560px;
         min-height: 250px;
@@ -33,68 +30,25 @@ export component UrlModalDialog inherits Rectangle {
         border-width: 1px;
         border-color: Theme.modal_border;
 
-        // Prevent click bubbling to backdrop
         TouchArea {}
 
         VerticalLayout {
             padding: 22px;
             spacing: 16px;
 
-            // Header & Close Button
-            HorizontalLayout {
-                alignment: space-between;
-
-                VerticalLayout {
-                    spacing: 2px;
-                    Text {
-                        text: "Add Aparat Link";
-                        font-size: 15px;
-                        font-weight: 700;
-                        color: Theme.text_primary;
-                    }
-                    Text {
-                        text: "Enter a single video URL or a full playlist link";
-                        font-size: 11px;
-                        color: Theme.text_muted;
-                    }
-                }
-
-                Rectangle {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 14px;
-                    background: close_touch.has-hover ? #ffffff22 : #ffffff14;
-
-                    animate background { duration: 120ms; }
-
-                    close_touch := TouchArea {
-                        enabled: !root.is_analyzing;
-                        clicked => { root.close_modal(); }
-                    }
-
-                    Text {
-                        text: "×";
-                        color: Theme.text_primary;
-                        font-size: 16px;
-                        font-weight: 700;
-                        vertical-alignment: center;
-                        horizontal-alignment: center;
-                    }
-                }
+            ModalHeader {
+                is_analyzing: root.is_analyzing;
+                close_modal => { root.close_modal(); }
             }
 
-            // Auto-Expanding Input Field with Embedded Inline Paste Action
             input_field := DarkGlassTextInput {
                 horizontal-stretch: 1;
                 placeholder: "https://www.aparat.com/v/... or playlist/...";
                 enabled: !root.is_analyzing;
                 paste_clicked => { root.paste_from_clipboard(); }
-                accepted => {
-                    root.submit_url(input_field.text);
-                }
+                accepted => { root.submit_url(input_field.text); }
             }
 
-            // Validation / Status Text Notice
             if root.validation_message != "": Rectangle {
                 background: #ef444416;
                 border-radius: 6px;
@@ -109,46 +63,18 @@ export component UrlModalDialog inherits Rectangle {
                     spacing: 6px;
                     alignment: start;
 
-                    Text {
-                        text: "⚠";
-                        color: #f87171;
-                        font-size: 11px;
-                        font-weight: 700;
-                        vertical-alignment: center;
-                    }
-
-                    Text {
-                        text: root.validation_message;
-                        color: #f87171;
-                        font-size: 11px;
-                        font-weight: 600;
-                        vertical-alignment: center;
-                        wrap: char-wrap;
-                    }
+                    Text { text: "⚠"; color: #f87171; font-size: 11px; font-weight: 700; vertical-alignment: center; }
+                    Text { text: root.validation_message; color: #f87171; font-size: 11px; font-weight: 600; vertical-alignment: center; wrap: char-wrap; }
                 }
             }
 
             Rectangle { vertical-stretch: 1; }
 
-            // Footer Actions
-            HorizontalLayout {
-                alignment: end;
-                spacing: 10px;
-
-                GlassButton {
-                    text: "Cancel";
-                    height: 36px;
-                    enabled: !root.is_analyzing;
-                    clicked => { root.close_modal(); }
-                }
-
-                GlassButton {
-                    text: root.is_analyzing ? "Resolving Stream..." : "Fetch Media";
-                    primary: true;
-                    height: 36px;
-                    enabled: !root.is_analyzing && input_field.text != "";
-                    clicked => { root.submit_url(input_field.text); }
-                }
+            ModalActions {
+                is_analyzing: root.is_analyzing;
+                has_input: input_field.text != "";
+                cancel => { root.close_modal(); }
+                submit => { root.submit_url(input_field.text); }
             }
         }
     }

@@ -1,0 +1,62 @@
+import { Theme } from "../../theme.slint";
+import { GlassCard } from "../../components/glass_card.slint";
+import { GlassButton } from "../../components/glass_button.slint";
+
+export component QueueToolbar inherits GlassCard {
+    in property <int> item_count: 0;
+    callback open_add_modal();
+    callback select_all();
+    callback deselect_all();
+
+    height: 52px;
+
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        alignment: space-between;
+
+        Text {
+            text: "Queue Items (" + root.item_count + ")";
+            font-size: 14px;
+            font-weight: 700;
+            color: Theme.text_primary;
+            vertical-alignment: center;
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: end;
+
+            GlassButton {
+                text: "+ Add Link";
+                primary: true;
+                height: 32px;
+                y: (parent.height - self.height) / 2;
+                clicked => { root.open_add_modal(); }
+            }
+
+            Rectangle {
+                width: 1px;
+                height: 18px;
+                background: Theme.card_border;
+                y: (parent.height - self.height) / 2;
+            }
+
+            GlassButton {
+                text: "Select All";
+                enabled: root.item_count > 0;
+                height: 32px;
+                y: (parent.height - self.height) / 2;
+                clicked => { root.select_all(); }
+            }
+
+            GlassButton {
+                text: "Deselect All";
+                enabled: root.item_count > 0;
+                height: 32px;
+                y: (parent.height - self.height) / 2;
+                clicked => { root.deselect_all(); }
+            }
+        }
+    }
+}

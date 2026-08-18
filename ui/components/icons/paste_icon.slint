@@ -1,0 +1,44 @@
+export component MinimalPasteIcon inherits Rectangle {
+    width: 14px;
+    height: 15px;
+
+    // Clipboard base
+    Rectangle {
+        width: 12px;
+        height: 13px;
+        x: 1px;
+        y: 2px;
+        border-radius: 2px;
+        border-width: 1.2px;
+        border-color: #ffffffd0;
+    }
+
+    // Top clip tab
+    Rectangle {
+        width: 6px;
+        height: 3px;
+        x: 4px;
+        y: 0px;
+        border-radius: 1px;
+        background: #ffffffff;
+    }
+
+    // Inner detail lines
+    Rectangle {
+        width: 6px;
+        height: 1.2px;
+        x: 4px;
+        y: 6.5px;
+        border-radius: 0.5px;
+        background: #ffffffb0;
+    }
+
+    Rectangle {
+        width: 4px;
+        height: 1.2px;
+        x: 4px;
+        y: 9.5px;
+        border-radius: 0.5px;
+        background: #ffffff80;
+    }
+}

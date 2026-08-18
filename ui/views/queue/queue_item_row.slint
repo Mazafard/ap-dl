@@ -1,0 +1,96 @@
+import { Theme } from "../../theme.slint";
+import { MediaItem } from "../../models.slint";
+
+export component QueueItemRow inherits Rectangle {
+    in property <MediaItem> item;
+    callback toggle();
+
+    height: 58px;
+    background: Theme.card_item_bg;
+    border-radius: Theme.radius_md;
+    border-width: 1px;
+    border-color: root.item.status_code == 1 ? #f43f5e55 : Theme.card_item_border;
+
+    HorizontalLayout {
+        padding-left: 12px; padding-right: 12px;
+        spacing: 12px; alignment: space-between;
+
+        // Selection Checkbox
+        Rectangle {
+            width: 24px;
+            TouchArea { clicked => { root.toggle(); } }
+
+            Rectangle {
+                width: 18px; height: 18px; border-radius: 4px;
+                background: root.item.selected ? Theme.primary_pressed : #ffffff0e;
+                border-width: 1px; border-color: root.item.selected ? Theme.primary : #ffffff24;
+                y: (parent.height - self.height) / 2;
+
+                Text {
+                    text: root.item.selected ? "✓" : "";
+                    color: Theme.text_primary;
+                    font-size: 11px; font-weight: 800;
+                    vertical-alignment: center; horizontal-alignment: center;
+                }
+            }
+        }
+
+        // Index Label
+        Text {
+            text: root.item.index_label;
+            font-size: 11px; font-weight: 700;
+            color: Theme.text_subtle;
+            vertical-alignment: center; width: 22px;
+        }
+
+        // Title & Speed
+        VerticalLayout {
+            horizontal-stretch: 1; alignment: center; spacing: 4px;
+
+            Text {
+                text: root.item.title;
+                font-size: 13px; font-weight: 600;
+                color: Theme.text_primary; overflow: elide;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                Text {
+                    text: root.item.speed_text;
+                    font-size: 11px;
+                    color: root.item.status_code == 1 ? Theme.primary : (root.item.status_code == 3 ? Theme.danger : Theme.text_muted);
+                    overflow: elide; max-width: 140px;
+                }
+                Text {
+                    text: root.item.file_size;
+                    font-size: 11px; color: Theme.text_subtle; overflow: elide;
+                }
+            }
+        }
+
+        // Resolution Badge
+        Rectangle {
+            width: 64px; height: 22px; border-radius: 4px;
+            background: Theme.cyan_badge_bg; border-width: 1px; border-color: Theme.cyan_badge_border;
+            y: (parent.height - self.height) / 2;
+
+            Text {
+                text: root.item.resolution; font-size: 10px; font-weight: 700;
+                color: Theme.cyan_accent; vertical-alignment: center; horizontal-alignment: center;
+            }
+        }
+
+        // Progress Bar
+        Rectangle {
+            width: 140px; height: 6px; background: #ffffff14; border-radius: 3px; clip: true;
+            y: (parent.height - self.height) / 2;
+
+            Rectangle {
+                width: parent.width * Math.min(1.0, Math.max(0.0, root.item.progress));
+                height: parent.height;
+                background: root.item.status_code == 2 ? Theme.success : (root.item.status_code == 3 ? Theme.danger : Theme.primary);
+                border-radius: 3px; x: 0;
+            }
+        }
+    }
+}

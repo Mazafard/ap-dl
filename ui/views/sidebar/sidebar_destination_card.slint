@@ -1,0 +1,33 @@
+import { Theme } from "../../theme.slint";
+import { GlassCard } from "../../components/glass_card.slint";
+import { GlassButton } from "../../components/glass_button.slint";
+
+export component SidebarDestinationCard inherits GlassCard {
+    in property <string> destination_path: "~/Downloads";
+    callback browse_path();
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 8px;
+
+        Text {
+            text: "SAVE LOCATION";
+            font-size: 10px;
+            font-weight: 700;
+            color: Theme.text_muted;
+        }
+
+        Text {
+            text: root.destination_path;
+            font-size: 11px;
+            color: Theme.text_secondary;
+            overflow: elide;
+        }
+
+        GlassButton {
+            text: "Change Folder";
+            height: 34px;
+            clicked => { root.browse_path(); }
+        }
+    }
+}
