@@ -58,3 +58,19 @@ pub fn apply_update_result(app_weak: slint::Weak<AppWindow>, result: UpdateCheck
         }
     });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_check_update_simulated() {
+        std::env::set_var("APDL_SIMULATE_UPDATE", "1");
+        let result = check_update("0.1.0").await;
+        std::env::remove_var("APDL_SIMULATE_UPDATE");
+        match result {
+            UpdateCheckResult::UpdateAvailable(info) => assert_eq!(info.latest_version, "v0.2.0"),
+            _ => panic!("Expected UpdateAvailable in simulation mode"),
+        }
+    }
+}
