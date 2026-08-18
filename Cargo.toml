@@ -1,8 +1,8 @@
 [package]
 name = "ap-dl"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
-authors = ["ap-dl contributors"]
+authors = ["Mohammadreza A. Fard"]
 description = "Fast, modern Aparat Video & Playlist Downloader built with Slint and Tokio"
 
 [dependencies]
