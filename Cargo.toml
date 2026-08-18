@@ -20,7 +20,7 @@ arboard = "3.4"
 log = "0.4"
 simplelog = "0.12"
 self-replace = "1.5"
-zip = { version = "2.2", default-features = false, features = ["deflate"] }
+zip = { version = "8.6", default-features = false, features = ["deflate"] }
 flate2 = "1.0"
 tar = "0.4"
 
