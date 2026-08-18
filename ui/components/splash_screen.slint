@@ -1,0 +1,69 @@
+import { Theme } from "../theme.slint";
+import { SplashLogo } from "splash/splash_logo.slint";
+import { SplashProgress } from "splash/splash_progress.slint";
+import { SplashStatus } from "splash/splash_status.slint";
+
+export component SplashScreen inherits Rectangle {
+    in property <bool> is_visible: true;
+    in property <string> status_text: "Initializing APDL...";
+    in property <float> progress: 0.0;
+
+    opacity: root.is_visible ? 1.0 : 0.0;
+    visible: root.opacity > 0.01;
+
+    animate opacity {
+        duration: 350ms;
+        easing: ease-in-out;
+    }
+
+    background: @linear-gradient(160deg, #0F172ACC, #070B14EE);
+    border-radius: 12px;
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 20px;
+
+        HorizontalLayout {
+            alignment: center;
+            SplashLogo {}
+        }
+
+        VerticalLayout {
+            alignment: center;
+            spacing: 6px;
+
+            Text {
+                text: "APDL";
+                font-size: 26px;
+                font-weight: 800;
+                color: #FFFFFF;
+                horizontal-alignment: center;
+                letter-spacing: 2px;
+            }
+
+            Text {
+                text: "High-Performance Aparat Downloader";
+                font-size: 13px;
+                font-weight: 500;
+                color: #94A3B8;
+                horizontal-alignment: center;
+            }
+        }
+
+        VerticalLayout {
+            alignment: center;
+            spacing: 12px;
+
+            HorizontalLayout {
+                alignment: center;
+                SplashProgress {
+                    progress: root.progress;
+                }
+            }
+
+            SplashStatus {
+                status_text: root.status_text;
+            }
+        }
+    }
+}

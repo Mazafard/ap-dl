@@ -1,0 +1,28 @@
+import { Theme } from "../../theme.slint";
+
+export component SplashProgress inherits Rectangle {
+    in property <float> progress: 0.0;
+
+    width: 240px;
+    height: 6px;
+    border-radius: 3px;
+    background: #FFFFFF.transparentize(90%);
+    border-width: 1px;
+    border-color: #FFFFFF.transparentize(85%);
+    clip: true;
+
+    // Active progress fill with smooth width transition
+    Rectangle {
+        x: 0;
+        y: 0;
+        height: 100%;
+        width: parent.width * Math.min(1.0, Math.max(0.0, root.progress));
+        border-radius: 3px;
+        background: @linear-gradient(90deg, #38BDF8, #818CF8);
+
+        animate width {
+            duration: 250ms;
+            easing: ease-out;
+        }
+    }
+}

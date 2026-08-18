@@ -1,0 +1,40 @@
+import { Theme } from "../../theme.slint";
+
+export component SplashLogo inherits Rectangle {
+    width: 96px;
+    height: 96px;
+
+    // Glowing outer aura
+    Rectangle {
+        width: 100%;
+        height: 100%;
+        border-radius: 24px;
+        background: @linear-gradient(135deg, Theme.primary.transparentize(60%), Theme.cyan_accent.transparentize(70%));
+        drop-shadow-blur: 28px;
+        drop-shadow-color: Theme.primary.transparentize(40%);
+    }
+
+    // Glass Card Container
+    Rectangle {
+        width: 88px;
+        height: 88px;
+        x: 4px;
+        y: 4px;
+        border-radius: 22px;
+        background: @linear-gradient(145deg, #2A2E3D.transparentize(20%), #181B24.transparentize(10%));
+        border-width: 1.5px;
+        border-color: @linear-gradient(135deg, #FFFFFF.transparentize(60%), #3B82F6.transparentize(70%));
+
+        // Downloader Rocket/Arrow Icon
+        Path {
+            width: 44px;
+            height: 44px;
+            x: 22px;
+            y: 20px;
+            stroke: #38BDF8;
+            stroke-width: 3.5px;
+            fill: @linear-gradient(180deg, #38BDF8.transparentize(70%), #818CF8.transparentize(50%));
+            commands: "M 22 4 L 22 28 M 12 18 L 22 28 L 32 18 M 6 36 L 38 36";
+        }
+    }
+}

@@ -1,0 +1,22 @@
+import { Theme } from "../../theme.slint";
+
+export component SplashStatus inherits HorizontalLayout {
+    in property <string> status_text: "Initializing...";
+
+    alignment: center;
+    spacing: 8px;
+
+    Text {
+        text: root.status_text;
+        color: #94A3B8;
+        font-size: 12px;
+        font-weight: 500;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+
+        animate color {
+            duration: 200ms;
+            easing: ease-in-out;
+        }
+    }
+}
