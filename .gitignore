@@ -2,8 +2,7 @@
 /target/
 /dist/
 
-
-# Downloaded files & temporary parts (prevents cargo watch from restarting)
+# Downloaded files & temporary parts
 *.mp4
 *.mp4.part
 *.part
@@ -15,3 +14,22 @@
 *.swp
 .idea/
 .vscode/
+
+# Coverage & testing reports
+lcov.info
+*.lcov
+*.profraw
+*.profdata
+target/cov/
+
+# Credentials & Secrets (Defense-in-Depth)
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.keystore
+*token*.json
+credentials.json

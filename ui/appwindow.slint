@@ -17,7 +17,8 @@ export component AppWindow inherits Window {
     background: #00000000;
     default-font-family: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
 
-    // Application & Modal State
+    // Application & OS State
+    in property <bool> is_macos: false;
     in-out property <string> destination_path: "~/Downloads";
     in-out property <string> collection_title: "No media loaded";
     in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
@@ -29,13 +30,16 @@ export component AppWindow inherits Window {
     in-out property <string> validation_message: "";
     in-out property <bool> is_analyzing: false;
 
-    // Splash, Update, About & Toast Properties
+    // Splash, Update & Toast Properties
     in-out property <bool> show_splash: true;
     in-out property <string> splash_status: "Initializing APDL...";
     in-out property <float> splash_progress: 0.15;
     in-out property <bool> show_update_dialog: false;
     in-out property <bool> show_about_dialog: false;
     in-out property <bool> update_available: false;
+    in-out property <bool> is_installing_update: false;
+    in-out property <float> update_progress: 0.0;
+    in-out property <string> update_status: "Downloading update...";
     in-out property <string> current_version: "0.2.1";
     in-out property <string> latest_version: "0.2.1";
     in-out property <string> release_notes: "";
@@ -46,19 +50,20 @@ export component AppWindow inherits Window {
     // Callbacks
     callback paste_from_clipboard(); callback submit_url(string); callback browse_path();
     callback toggle_select_all(bool); callback toggle_item(int);
-    callback start_download(); callback cancel_download(); callback download_update();
+    callback start_download(); callback cancel_download();
+    callback download_update(); callback start_install_update();
     callback open_repo(); callback open_issues(); callback open_docs(); callback check_updates_from_about();
 
     MainContent {
+        is_macos: root.is_macos;
         destination_path <=> root.destination_path; collection_title <=> root.collection_title;
         collection_details <=> root.collection_details; total_speed <=> root.total_speed;
         is_downloading <=> root.is_downloading; media_items <=> root.media_items;
         open_add_modal => { root.validation_message = ""; root.show_url_modal = true; }
-        browse_path => { root.browse_path(); }
-        toggle_select_all(s) => { root.toggle_select_all(s); }
-        toggle_item(i) => { root.toggle_item(i); }
-        start_download => { root.start_download(); }
-        cancel_download => { root.cancel_download(); }
+        browse_path => { root.browse_path(); } check_updates => { root.check_updates_from_about(); }
+        show_about => { root.show_about_dialog = true; }
+        toggle_select_all(s) => { root.toggle_select_all(s); } toggle_item(i) => { root.toggle_item(i); }
+        start_download => { root.start_download(); } cancel_download => { root.cancel_download(); }
     }
 
     if root.show_url_modal: UrlModalDialog {
@@ -70,7 +75,9 @@ export component AppWindow inherits Window {
     if root.show_update_dialog: UpdateDialog {
         is_visible: root.show_update_dialog; current_version: root.current_version;
         latest_version: root.latest_version; release_notes: root.release_notes;
-        download_update => { root.download_update(); } dismiss => { root.show_update_dialog = false; }
+        is_installing: root.is_installing_update; install_progress: root.update_progress;
+        install_status: root.update_status; install_update => { root.start_install_update(); }
+        browser_update => { root.download_update(); } dismiss => { root.show_update_dialog = false; }
     }
 
     if root.show_about_dialog: AboutDialog {
