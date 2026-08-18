@@ -32,7 +32,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Linux GUI System Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /var/cache/apt/archives
           key: apt-gui-deps-ubuntu24
@@ -40,6 +40,7 @@ jobs:
 
       - name: Install Linux GUI Dependencies
         run: |
+          sudo chmod -R a+r /var/cache/apt/archives 2>/dev/null || true
           # Bypass slow Azure mirror with direct Ubuntu archive
           sudo sed -i 's|http://azure.archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null || true
           sudo rm -f /etc/apt/sources.list.d/azure-cli* /etc/apt/sources.list.d/google-chrome* /etc/apt/sources.list.d/microsoft*
@@ -52,6 +53,7 @@ jobs:
             libxkbcommon-dev \
             libssl-dev \
             libudev-dev
+          sudo chmod -R a+r /var/cache/apt/archives 2>/dev/null || true
 
       - name: Rust Dependency Cache
         uses: Swatinem/rust-cache@v2
@@ -260,7 +262,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Linux GUI System Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /var/cache/apt/archives
           key: apt-gui-deps-ubuntu24
@@ -268,6 +270,7 @@ jobs:
 
       - name: Install Linux GUI Dependencies
         run: |
+          sudo chmod -R a+r /var/cache/apt/archives 2>/dev/null || true
           # Bypass slow Azure mirror with direct Ubuntu archive
           sudo sed -i 's|http://azure.archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null || true
           sudo rm -f /etc/apt/sources.list.d/azure-cli* /etc/apt/sources.list.d/google-chrome* /etc/apt/sources.list.d/microsoft*
@@ -280,6 +283,7 @@ jobs:
             libxkbcommon-dev \
             libssl-dev \
             libudev-dev
+          sudo chmod -R a+r /var/cache/apt/archives 2>/dev/null || true
 
       - name: Rust Dependency Cache
         uses: Swatinem/rust-cache@v2
