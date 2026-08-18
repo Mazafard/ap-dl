@@ -1,0 +1,71 @@
+import { Theme } from "../../theme.slint";
+
+export component ChangelogVersionCard inherits Rectangle {
+    in property <string> version_tag: "v0.3.0";
+    in property <string> release_date: "August 2026";
+    in property <string> highlights: "• Feature 1\n• Feature 2";
+    in property <bool> is_latest: false;
+
+    border-radius: 10px;
+    background: #ffffff0a;
+    border-width: 1px;
+    border-color: root.is_latest ? #f43f5e55 : #ffffff14;
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 6px;
+
+        HorizontalLayout {
+            alignment: space-between;
+
+            HorizontalLayout {
+                spacing: 6px;
+                alignment: start;
+
+                Text {
+                    text: root.version_tag;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: root.is_latest ? #f43f5e : #FFFFFF;
+                    vertical-alignment: center;
+                }
+
+                if root.is_latest : Rectangle {
+                    height: 14px;
+                    border-radius: 4px;
+                    background: #f43f5e20;
+                    border-width: 1px;
+                    border-color: #f43f5e50;
+
+                    HorizontalLayout {
+                        padding-left: 4px;
+                        padding-right: 4px;
+                        alignment: center;
+
+                        Text {
+                            text: "CURRENT";
+                            font-size: 8px;
+                            font-weight: 800;
+                            color: #f43f5e;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            Text {
+                text: root.release_date;
+                font-size: 11px;
+                color: Theme.text_subtle;
+                vertical-alignment: center;
+            }
+        }
+
+        Text {
+            text: root.highlights;
+            font-size: 11px;
+            color: #CBD5E1;
+            wrap: word-wrap;
+        }
+    }
+}

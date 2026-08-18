@@ -8,6 +8,7 @@ export component InWindowMenubar inherits Rectangle {
     callback open_folder();
     callback check_updates();
     callback show_about();
+    callback show_changelog();
 
     private property <int> open_dropdown: 0; // 0: None, 1: File, 2: Edit, 3: View, 4: Help
 
@@ -60,6 +61,7 @@ export component InWindowMenubar inherits Rectangle {
         open_folder => { root.open_folder(); }
         check_updates => { root.check_updates(); }
         show_about => { root.show_about(); }
+        show_changelog => { root.show_changelog(); }
         dismiss => { root.open_dropdown = 0; }
     }
 }

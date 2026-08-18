@@ -7,6 +7,7 @@ export component MenuDropdown inherits Rectangle {
     callback open_folder();
     callback check_updates();
     callback show_about();
+    callback show_changelog();
     callback dismiss();
 
     width: 210px;
@@ -39,8 +40,9 @@ export component MenuDropdown inherits Rectangle {
 
         if root.active_menu == 4 : VerticalLayout {
             spacing: 2px;
-            MenuDropdownRow { text: "About APDL"; clicked => { root.show_about(); root.dismiss(); } }
+            MenuDropdownRow { text: "What's New in APDL"; clicked => { root.show_changelog(); root.dismiss(); } }
             MenuDropdownRow { text: "Check for Updates..."; clicked => { root.check_updates(); root.dismiss(); } }
+            MenuDropdownRow { text: "About APDL"; clicked => { root.show_about(); root.dismiss(); } }
         }
     }
 }

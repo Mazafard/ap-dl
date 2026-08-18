@@ -1,0 +1,36 @@
+import { Theme } from "../../theme.slint";
+import { AppInfo } from "../../models.slint";
+
+export component ChangelogHeader inherits HorizontalLayout {
+    alignment: space-between;
+
+    Text {
+        text: "📖 What's New in APDL";
+        font-size: 16px;
+        font-weight: 800;
+        color: #FFFFFF;
+        vertical-alignment: center;
+    }
+
+    Rectangle {
+        height: 18px;
+        border-radius: 9px;
+        background: #38bdf818;
+        border-width: 1px;
+        border-color: #38bdf840;
+
+        HorizontalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            alignment: center;
+
+            Text {
+                text: "v" + AppInfo.version;
+                font-size: 10px;
+                font-weight: 700;
+                color: #38bdf8;
+                vertical-alignment: center;
+            }
+        }
+    }
+}

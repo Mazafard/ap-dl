@@ -9,6 +9,7 @@ export component AboutDialog inherits Rectangle {
     in property <bool> is_visible: false;
     in property <string> app_version: "v" + AppInfo.version;
     callback check_updates();
+    callback show_changelog();
     callback open_repo();
     callback open_issues();
     callback open_docs();
@@ -27,7 +28,7 @@ export component AboutDialog inherits Rectangle {
     TouchArea {}
 
     Rectangle {
-        width: 480px;
+        width: 490px;
         height: 380px;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
@@ -56,11 +57,17 @@ export component AboutDialog inherits Rectangle {
             AboutDisclaimer {}
 
             HorizontalLayout {
-                spacing: 10px;
+                spacing: 8px;
                 alignment: end;
 
                 GlassButton {
-                    text: "Check for Updates...";
+                    text: "What's New";
+                    primary: false;
+                    clicked => { root.show_changelog(); }
+                }
+
+                GlassButton {
+                    text: "Check Updates...";
                     primary: false;
                     clicked => { root.check_updates(); }
                 }

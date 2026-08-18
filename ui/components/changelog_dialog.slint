@@ -1,0 +1,75 @@
+import { Theme } from "../theme.slint";
+import { GlassButton } from "glass_button.slint";
+import { GlassScrollView } from "glass_scroll_view.slint";
+import { ChangelogHeader } from "changelog/changelog_header.slint";
+import { ChangelogVersionCard } from "changelog/changelog_version_card.slint";
+
+export component ChangelogDialog inherits Rectangle {
+    in property <bool> is_visible: false;
+    callback dismiss();
+
+    opacity: root.is_visible ? 1.0 : 0.0;
+    visible: root.opacity > 0.01;
+
+    animate opacity { duration: 250ms; easing: ease-in-out; }
+
+    background: #000000.transparentize(35%);
+    TouchArea {}
+
+    Rectangle {
+        width: 520px;
+        height: 480px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 16px;
+        background: @linear-gradient(150deg, #1A1F2BF8, #11141DFB);
+        border-width: 1px;
+        border-color: #FFFFFF.transparentize(80%);
+        drop-shadow-blur: 32px;
+        drop-shadow-color: #000000.transparentize(30%);
+
+        VerticalLayout {
+            padding: 20px;
+            spacing: 12px;
+
+            ChangelogHeader {}
+
+            GlassScrollView {
+                VerticalLayout {
+                    spacing: 8px;
+                    padding-right: 6px;
+
+                    ChangelogVersionCard {
+                        version_tag: "v0.3.0";
+                        release_date: "Latest Release";
+                        is_latest: true;
+                        highlights: "• In-App One-Click Auto Installer & Atomic Binary Replacement\n• In-Window Frosted Glass Menubar for Windows & Linux\n• Windows Console Suppression & Embedded Taskbar Icon (.ico)\n• Linux Freedesktop .desktop Launcher & Installer Script\n• Centralized Singleton Version Management Architecture";
+                    }
+
+                    ChangelogVersionCard {
+                        version_tag: "v0.2.0";
+                        release_date: "August 2026";
+                        is_latest: false;
+                        highlights: "• GitHub Releases In-App Update Checker & Toast System\n• Progressive 100% Startup Sequence with Status Track\n• Custom Frosted Glass About Dialog with Author Attribution\n• In-Place Native macOS Menu Bar Integration\n• Slint Vector Path Icons & Input Actions Polish";
+                    }
+
+                    ChangelogVersionCard {
+                        version_tag: "v0.1.0";
+                        release_date: "Initial Release";
+                        is_latest: false;
+                        highlights: "• Single Video Resolution Picker (1080p down to 144p)\n• Playlist Batch URL Extraction\n• Resumable Multi-Segment Chunk Streaming with Auto-Resume\n• High-Availability CDN Edge Failover Routing";
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                alignment: end;
+                GlassButton {
+                    text: "Close";
+                    primary: true;
+                    clicked => { root.dismiss(); }
+                }
+            }
+        }
+    }
+}

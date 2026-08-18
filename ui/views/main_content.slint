@@ -17,6 +17,7 @@ export component MainContent inherits Rectangle {
     callback browse_path();
     callback check_updates();
     callback show_about();
+    callback show_changelog();
     callback toggle_select_all(bool);
     callback toggle_item(int);
     callback start_download();
@@ -34,6 +35,7 @@ export component MainContent inherits Rectangle {
             open_folder => { root.browse_path(); }
             check_updates => { root.check_updates(); }
             show_about => { root.show_about(); }
+            show_changelog => { root.show_changelog(); }
         }
 
         HorizontalLayout {

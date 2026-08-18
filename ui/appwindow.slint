@@ -5,6 +5,7 @@ import { UrlModalDialog } from "views/url_modal.slint";
 import { SplashScreen } from "components/splash_screen.slint";
 import { UpdateDialog } from "components/update_dialog.slint";
 import { AboutDialog } from "components/about_dialog.slint";
+import { ChangelogDialog } from "components/changelog_dialog.slint";
 import { ToastNotification } from "components/toast_notification.slint";
 
 export { MediaItem, AppInfo }
@@ -18,34 +19,16 @@ export component AppWindow inherits Window {
     default-font-family: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif";
 
     // Application & OS State
-    in property <bool> is_macos: false;
-    in-out property <string> destination_path: "~/Downloads";
-    in-out property <string> collection_title: "No media loaded";
-    in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
-    in-out property <string> total_speed: "Ready";
-    in-out property <bool> is_downloading: false;
-    in-out property <[MediaItem]> media_items: [];
-    in-out property <bool> show_url_modal: false;
-    in-out property <string> modal_url_input: "";
-    in-out property <string> validation_message: "";
-    in-out property <bool> is_analyzing: false;
+    in property <bool> is_macos: false; in-out property <string> destination_path: "~/Downloads";
+    in-out property <string> collection_title: "No media loaded"; in-out property <string> collection_details: "Click '+ Add Stream / Playlist' to begin";
+    in-out property <string> total_speed: "Ready"; in-out property <bool> is_downloading: false; in-out property <[MediaItem]> media_items: [];
+    in-out property <bool> show_url_modal: false; in-out property <string> modal_url_input: ""; in-out property <string> validation_message: ""; in-out property <bool> is_analyzing: false;
 
-    // Splash, Update & Toast Properties
-    in-out property <bool> show_splash: true;
-    in-out property <string> splash_status: "Initializing APDL...";
-    in-out property <float> splash_progress: 0.15;
-    in-out property <bool> show_update_dialog: false;
-    in-out property <bool> show_about_dialog: false;
-    in-out property <bool> update_available: false;
-    in-out property <bool> is_installing_update: false;
-    in-out property <float> update_progress: 0.0;
-    in-out property <string> update_status: "Downloading update...";
-    in-out property <string> current_version: AppInfo.version;
-    in-out property <string> latest_version: AppInfo.version;
-    in-out property <string> release_notes: "";
-    in-out property <string> release_url: "https://github.com/Mazafard/ap-dl/releases/latest";
-    in-out property <bool> show_toast: false;
-    in-out property <string> toast_message: "";
+    // Splash, Update, About, Changelog & Toast Properties
+    in-out property <bool> show_splash: true; in-out property <string> splash_status: "Initializing APDL..."; in-out property <float> splash_progress: 0.15;
+    in-out property <bool> show_update_dialog: false; in-out property <bool> show_about_dialog: false; in-out property <bool> show_changelog_dialog: false;
+    in-out property <bool> update_available: false; in-out property <bool> is_installing_update: false; in-out property <float> update_progress: 0.0; in-out property <string> update_status: "Downloading update...";
+    in-out property <string> current_version: AppInfo.version; in-out property <string> latest_version: AppInfo.version; in-out property <string> release_notes: ""; in-out property <string> release_url: "https://github.com/Mazafard/ap-dl/releases/latest"; in-out property <bool> show_toast: false; in-out property <string> toast_message: "";
 
     // Callbacks
     callback paste_from_clipboard(); callback submit_url(string); callback browse_path();
@@ -55,13 +38,12 @@ export component AppWindow inherits Window {
     callback open_repo(); callback open_issues(); callback open_docs(); callback check_updates_from_about();
 
     MainContent {
-        is_macos: root.is_macos;
-        destination_path <=> root.destination_path; collection_title <=> root.collection_title;
-        collection_details <=> root.collection_details; total_speed <=> root.total_speed;
-        is_downloading <=> root.is_downloading; media_items <=> root.media_items;
+        is_macos: root.is_macos; destination_path <=> root.destination_path;
+        collection_title <=> root.collection_title; collection_details <=> root.collection_details;
+        total_speed <=> root.total_speed; is_downloading <=> root.is_downloading; media_items <=> root.media_items;
         open_add_modal => { root.validation_message = ""; root.show_url_modal = true; }
         browse_path => { root.browse_path(); } check_updates => { root.check_updates_from_about(); }
-        show_about => { root.show_about_dialog = true; }
+        show_about => { root.show_about_dialog = true; } show_changelog => { root.show_changelog_dialog = true; }
         toggle_select_all(s) => { root.toggle_select_all(s); } toggle_item(i) => { root.toggle_item(i); }
         start_download => { root.start_download(); } cancel_download => { root.cancel_download(); }
     }
@@ -82,9 +64,13 @@ export component AppWindow inherits Window {
 
     if root.show_about_dialog: AboutDialog {
         is_visible: root.show_about_dialog; app_version: "v" + root.current_version;
-        check_updates => { root.check_updates_from_about(); }
+        check_updates => { root.check_updates_from_about(); } show_changelog => { root.show_changelog_dialog = true; }
         open_repo => { root.open_repo(); } open_issues => { root.open_issues(); } open_docs => { root.open_docs(); }
         dismiss => { root.show_about_dialog = false; }
+    }
+
+    if root.show_changelog_dialog: ChangelogDialog {
+        is_visible: root.show_changelog_dialog; dismiss => { root.show_changelog_dialog = false; }
     }
 
     if root.show_toast: ToastNotification {
