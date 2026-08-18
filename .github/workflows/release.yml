@@ -7,47 +7,57 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (e.g. v0.0.1)'
+        description: 'Release tag (e.g. v0.1.0)'
         required: true
-        default: 'v0.0.1'
+        default: 'v0.1.0'
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build - ${{ matrix.platform.name }} (${{ matrix.platform.target }})
-    runs-on: ${{ matrix.platform.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          # Linux x86_64
-          - name: Linux
-            os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            binary_name: ap-dl
-            archive_ext: tar.gz
-            asset_suffix: linux-x86_64
-
-          # Windows x86_64
-          - name: Windows
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            binary_name: ap-dl.exe
-            archive_ext: zip
-            asset_suffix: windows-x86_64
-
-          # macOS (Apple Silicon / ARM64)
-          - name: macOS
-            os: macos-latest
-            target: aarch64-apple-darwin
-            binary_name: ap-dl
-            archive_ext: zip
-            asset_suffix: macos-arm64
-
+  # ============================================================================
+  # 1. QUALITY GATE: Lint & Test Verification
+  # ============================================================================
+  check-and-test:
+    name: "Quality Gate (Check & Test)"
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux GUI Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libfontconfig1-dev \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libssl-dev \
+            libudev-dev
+
+      - name: Rust Dependency Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run Cargo Check
+        run: cargo check
+
+      - name: Run Cargo Test Suite
+        run: cargo test -- --nocapture
+
+  # ============================================================================
+  # 2. BUILD: macOS (Apple Silicon ARM64)
+  # ============================================================================
+  build-macos:
+    name: "Build - macOS (Apple Silicon)"
+    needs: check-and-test
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Extract Tag Version
@@ -63,27 +73,15 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform.target }}
 
-      - name: Install Linux GUI Dependencies
-        if: matrix.platform.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libfontconfig1-dev \
-            libxcb-render0-dev \
-            libxcb-shape0-dev \
-            libxcb-xfixes0-dev \
-            libxkbcommon-dev \
-            libssl-dev \
-            libudev-dev
+      - name: Rust Dependency Cache
+        uses: Swatinem/rust-cache@v2
 
-      - name: Build Binary
-        run: cargo build --release --target ${{ matrix.platform.target }}
+      - name: Build Optimized Release Binary
+        run: cargo build --release
 
-      - name: Setup macOS Signing Certificate
-        if: startsWith(matrix.platform.os, 'macos') && env.MACOS_CERTIFICATE_BASE64 != ''
+      - name: Setup macOS Developer ID Certificate
+        if: env.MACOS_CERTIFICATE_BASE64 != ''
         env:
           MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
@@ -91,21 +89,18 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           KEYCHAIN_PASSWORD=$(openssl rand -base64 24)
           
-          # Create temporary keychain
+          # Create temporary runner keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           
-          # Import certificate into keychain
+          # Import Developer ID certificate into keychain
           echo "$MACOS_CERTIFICATE_BASE64" | base64 --decode > $RUNNER_TEMP/certificate.p12
           security import $RUNNER_TEMP/certificate.p12 -k "$KEYCHAIN_PATH" -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          
-          # Add to search list
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
 
-      - name: Package Release Assets (macOS)
-        if: startsWith(matrix.platform.os, 'macos')
+      - name: Package APDL.app & Create Signed DMG
         shell: bash
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -113,13 +108,12 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
-          ARCHIVE_NAME="ap-dl-${VERSION}-${{ matrix.platform.asset_suffix }}.zip"
-          DMG_NAME="ap-dl-${VERSION}-${{ matrix.platform.asset_suffix }}.dmg"
+          ARCHIVE_NAME="ap-dl-${VERSION}-macos-arm64.zip"
+          DMG_NAME="ap-dl-${VERSION}-macos-arm64.dmg"
           APP_DIR="dist/APDL.app"
           
-          mkdir -p "${APP_DIR}/Contents/MacOS"
-          mkdir -p "${APP_DIR}/Contents/Resources"
-          cp target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }} "${APP_DIR}/Contents/MacOS/ap-dl"
+          mkdir -p "${APP_DIR}/Contents/MacOS" "${APP_DIR}/Contents/Resources"
+          cp target/release/ap-dl "${APP_DIR}/Contents/MacOS/ap-dl"
           chmod +x "${APP_DIR}/Contents/MacOS/ap-dl"
           
           cp assets/AppIcon.icns "${APP_DIR}/Contents/Resources/AppIcon.icns" 2>/dev/null || cp assets/icon.icns "${APP_DIR}/Contents/Resources/AppIcon.icns" 2>/dev/null || true
@@ -135,7 +129,7 @@ jobs:
             codesign --force --deep --sign - "${APP_DIR}" 2>/dev/null || true
           fi
           
-          # Create DMG
+          # Create drag-and-drop DMG installer
           mkdir -p dist/dmg_staging
           cp -R "${APP_DIR}" dist/dmg_staging/APDL.app
           ln -s /Applications dist/dmg_staging/Applications
@@ -154,53 +148,31 @@ jobs:
             fi
           fi
 
-          # Create ZIP
+          # Create standalone ZIP
           cd dist && zip -r "../${ARCHIVE_NAME}" APDL.app && cd ..
           
-          mkdir -p release_binaries
-          cp "${DMG_NAME}" release_binaries/
-          cp "${ARCHIVE_NAME}" release_binaries/
-          echo "ASSET_PATH=release_binaries/*" >> $GITHUB_ENV
+          mkdir -p macos_artifacts
+          cp "${DMG_NAME}" macos_artifacts/
+          cp "${ARCHIVE_NAME}" macos_artifacts/
 
-      - name: Package Release Assets (Linux)
-        if: matrix.platform.os == 'ubuntu-latest'
-        shell: bash
-        run: |
-          ARCHIVE_NAME="ap-dl-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform.asset_suffix }}.tar.gz"
-          mkdir -p dist
-          cp target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }} dist/
-          cp README.md dist/ 2>/dev/null || true
-          cp -r assets dist/ 2>/dev/null || true
-          tar -czvf "${ARCHIVE_NAME}" -C dist .
-          echo "ASSET_PATH=${ARCHIVE_NAME}" >> $GITHUB_ENV
-
-      - name: Package Release Assets (Windows)
-        if: matrix.platform.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $ArchiveName = "ap-dl-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform.asset_suffix }}.zip"
-          New-Item -ItemType Directory -Force -Path dist
-          Copy-Item "target/${{ matrix.platform.target }}/release/${{ matrix.platform.binary_name }}" -Destination dist/
-          if (Test-Path "README.md") { Copy-Item "README.md" -Destination dist/ }
-          if (Test-Path "assets") { Copy-Item "assets" -Recurse -Destination dist/ }
-          Compress-Archive -Path dist/* -DestinationPath $ArchiveName
-          echo "ASSET_PATH=$ArchiveName" >> $env:GITHUB_ENV
-
-      - name: Upload Artifact
+      - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform.asset_suffix }}
-          path: ${{ env.ASSET_PATH }}
+          name: macos-arm64
+          path: macos_artifacts/*
 
-  publish:
-    name: Publish GitHub Release
-    needs: build
-    runs-on: ubuntu-latest
+  # ============================================================================
+  # 3. BUILD: Windows (x64)
+  # ============================================================================
+  build-windows:
+    name: "Build - Windows (x64)"
+    needs: check-and-test
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract Version
+      - name: Extract Tag Version
         id: get_version
         shell: bash
         run: |
@@ -211,13 +183,134 @@ jobs:
           fi
           echo "VERSION=${TAG}" >> $GITHUB_OUTPUT
 
-      - name: Download all built artifacts
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Dependency Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Optimized Release Binary
+        run: cargo build --release
+
+      - name: Package Windows ZIP Archive
+        shell: pwsh
+        run: |
+          $Version = "${{ steps.get_version.outputs.VERSION }}"
+          $ArchiveName = "ap-dl-$Version-windows-x64.zip"
+          New-Item -ItemType Directory -Force -Path dist_win
+          Copy-Item "target/release/ap-dl.exe" -Destination dist_win/
+          if (Test-Path "README.md") { Copy-Item "README.md" -Destination dist_win/ }
+          if (Test-Path "LICENSE") { Copy-Item "LICENSE" -Destination dist_win/ }
+          if (Test-Path "assets") { Copy-Item "assets" -Recurse -Destination dist_win/ }
+          Compress-Archive -Path dist_win/* -DestinationPath $ArchiveName
+          New-Item -ItemType Directory -Force -Path win_artifacts
+          Move-Item $ArchiveName -Destination win_artifacts/
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: win_artifacts/*
+
+  # ============================================================================
+  # 4. BUILD: Linux (x64)
+  # ============================================================================
+  build-linux:
+    name: "Build - Linux (x64)"
+    needs: check-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Tag Version
+        id: get_version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux GUI Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libfontconfig1-dev \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libssl-dev \
+            libudev-dev
+
+      - name: Rust Dependency Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Optimized Release Binary
+        run: cargo build --release
+
+      - name: Package Linux Tarball Archive
+        shell: bash
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          ARCHIVE_NAME="ap-dl-${VERSION}-linux-x64.tar.gz"
+          mkdir -p dist_linux
+          cp target/release/ap-dl dist_linux/
+          cp README.md dist_linux/ 2>/dev/null || true
+          cp LICENSE dist_linux/ 2>/dev/null || true
+          cp -r assets dist_linux/ 2>/dev/null || true
+          tar -czvf "${ARCHIVE_NAME}" -C dist_linux .
+          mkdir -p linux_artifacts
+          cp "${ARCHIVE_NAME}" linux_artifacts/
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: linux_artifacts/*
+
+  # ============================================================================
+  # 5. PUBLISH: Collect Assets, Generate Checksums & Create GitHub Release
+  # ============================================================================
+  publish-release:
+    name: "Publish GitHub Release"
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Release Version
+        id: get_version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Download all platform artifacts
         uses: actions/download-artifact@v4
         with:
           path: release_assets
           merge-multiple: true
 
-      - name: Create GitHub Release
+      - name: Generate SHA256 Checksums
+        shell: bash
+        run: |
+          cd release_assets
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create Official GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
@@ -225,6 +318,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          files: release_assets/*
+          files: |
+            release_assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
